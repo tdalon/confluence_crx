@@ -1,0 +1,186 @@
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const spacekeyInput = document.getElementById('spacekey');
+
+    // Load the saved spacekey value when the popup is opened
+	chrome.storage.sync.get('spacekey', (data) => {
+		if (data.spacekey) {
+			spacekeyInput.value = data.spacekey;
+		}
+	});
+
+    document.getElementById('confluenceForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        showResults();
+    });
+
+    
+    document.getElementById('spacekey').addEventListener("keyup", function(e) {
+        if (e.key === 'Enter') {
+            var spacekey = document.getElementById('spacekey').value.toUpperCase();
+            chrome.storage.sync.set({'spacekey': spacekey }, function () {
+                // Update status to let user know options were saved.
+                const status = document.getElementById('status_msg');
+                status.textContent = 'SpaceKey saved.';
+                setTimeout(() => {
+                status.textContent = '';
+                }, 750);
+            });
+        }
+    });
+
+    document.getElementById('go-to-options').addEventListener('click', function() {
+        if (chrome.runtime.openOptionsPage) {
+          chrome.runtime.openOptionsPage();
+        } else {
+          window.open(chrome.runtime.getURL('options.html'));
+        }
+      });
+
+    document.getElementById('popout').addEventListener('click', function() {
+        chrome.tabs.create({url: chrome.runtime.getURL('popup.html#window')});
+      });
+
+     
+    if (window.location.hash == '#window') {
+        document.getElementById("popout").style.display = "none";
+    } else {
+        document.getElementById("title").style.display = "none";
+        $('body').on('click', 'a', function(){
+            chrome.tabs.create({url: $(this).attr('href')});
+            return false;
+        });
+    }
+
+
+      // Load the search option
+	chrome.storage.sync.get('spacekey', (data) => {
+		if (data.spacekey) {
+			spacekeyInput.value = data.spacekey;
+		}
+	});
+
+
+});
+
+async function showResults() {
+
+    const resultsElt = document.getElementById('results');
+
+    let jsonobj;
+
+    resultsElt.innerHTML = '';
+    const u = await getSearchUrl();
+    //alert(u);
+    jsonobj = await fetch(u).then(res => res.json());
+    // TODO error handling e.g. not signed in
+
+
+    var subdomain = await getObjectFromLocalStorage('subdomain');
+    var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
+
+    const ul = document.createElement('ul');
+    ul.classList.add('results');
+
+    jsonobj.results.forEach(result => {
+        const li = document.createElement('li');
+        li.classList.add('result-item');
+
+        const result_title = document.createElement('h3');
+        result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a>';
+        result_title.classList.add('result-title');
+
+        li.appendChild(result_title);
+
+        ul.appendChild(li);
+    });
+
+    resultsElt.appendChild(ul);
+} // eofun showResults
+
+
+async function getSearchUrl() {
+    var searchQuery = document.getElementById('confluenceSearchQuery').value;
+    var subdomain = await getObjectFromLocalStorage('subdomain');
+    var spacekey = await getObjectFromLocalStorage('spacekey');
+    var type = await getObjectFromLocalStorage('type');
+    var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
+    var cql = Query2Cql(searchQuery,spacekey,type);
+    return rootUrl + '/rest/api/content/search?cql=' + cql ;
+   
+}
+
+// https://gist.github.com/sumitpore/47439fcd86696a71bf083ede8bbd5466
+
+const getObjectFromLocalStorage = async function(key) {
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.storage.sync.get(key, function(value) {
+          resolve(value[key]);
+        });
+      } catch (ex) {
+        reject(ex);
+      }
+    });
+  };
+
+
+
+function Query2Cql(searchStr,spacekey,type) {
+// parse labels with prefix # 
+patt = /#[^ ]*/g;
+arrMatch=searchStr.match(patt);
+var CQLLabels = '';
+if (arrMatch !== null){
+    for (var i= 0;i<arrMatch.length;i++){
+        var tag=arrMatch[i];
+        tag=tag.slice(1); // remove trailing #
+        tag= tag.replace("&","%26");
+        CQLLabels = CQLLabels + '+AND+label+=+' + tag  ;
+    }// end for tag array			
+    searchStr = searchStr.replace(patt,"");
+}
+searchStr = searchStr.trim();
+//CQL = encodeURIComponent(searchStr) ;
+
+switch (type) {
+case 'all':
+    break;
+case 'page':
+    CQL = 'type=' + type;
+    break;
+case 'blogpost':
+    CQL = 'type=' + type;
+    break;
+case 'page&blogpost':
+    CQL = '(type=page OR type=blogpost)'
+    break;
+default:
+    console.log(`Sorry, we are out of ${type}.`);
+}
+  
+
+if (searchStr) { 
+    CQL = CQL + ' AND siteSearch ~ "' + searchStr + '"';
+} 
+if (spacekey) {
+    var spaceCQL;
+    var key_array = spacekey.split(',');
+    for (let i = 0; i < key_array.length; i++) {
+        if (i==0) {
+            spaceCQL = 'space=' + key_array[i].trim();
+        } else {
+            spaceCQL = spaceCQL + ' OR space=' + key_array[i].trim();
+        }
+    }
+    if (key_array.length>1) {
+        spaceCQL = '(' + spaceCQL + ')';
+    }
+    CQL = CQL + ' AND ' + spaceCQL ;
+}
+if (CQLLabels) {
+    CQL = CQL + CQLLabels ;
+}     
+return CQL;
+} // eofun

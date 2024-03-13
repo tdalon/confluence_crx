@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confluence Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            width: 350px;
+            background-color: #F4F5F7;
+            color: #172B4D;
+        }
+        h1 {
+            font-size: 1.2em;
+            text-align: left;
+        }
+        .form-inline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+        }
+         .form-inline input {
+        width: 70%;
+        border: none;
+        outline: none;
+        font-size: 0.9em;
+        color: #172B4D;
+        background-color: #F4F5F7; /* Matching the input background with the body background */
+        }
+        .form-inline button {
+            font-size: 0.9em;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            background-color: #0052CC;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        .form-inline button.btn-secondary {
+            background-color: #172B4D;
+        }
+        footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 5px;
+            border-top: 1px solid #dfe1e6;
+            font-size: 0.8em;
+        }
+        #spacekey {
+        width: 50%;
+        height: 20px;
+        padding: 2px;
+        border: 1px solid #dfe1e6;
+        border-radius: 3px;
+        font-size: 0.8em;
+        background-color: #F4F5F7; /* Matching the input background with the body background */
+        }
+        #go-to-options {
+            padding: 5px 10px;
+            margin-left: 5px;
+            font-size: 0.8em;
+            background-color: #0da4fc;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #help {
+            padding: 5px 10px;
+        }
+    </style>
+      <script src="jquery-3.7.1.min.js"></script>
+    <script src="popup.js"></script>
+</head>
+<body>
+    <h1 id="title">Search Confluence</h1>
+    <form id="confluenceForm" class="form-inline mb-2">
+        <input type="text" id="confluenceSearchQuery" placeholder="Enter search query." required>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    <footer>
+        <a href=""></a><img id="popout" src="images/popout-16.png"></a>
+        <text id="help"><a href="https://github.com/tdalon/confluence_crx/blob/main/README.md">Help</a></text>
+        
+        <input type="text" id="spacekey" placeholder="SpaceKey">
+        <div id="status_msg"></div>
+        <button id="go-to-options">Options</button>
+        
+    </footer>    
+    
+    <div id="results"></div>
+</body>
+</html>

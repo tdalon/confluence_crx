@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Confluence Quick Search Options</title>
+  </head>
+  <body>
+    <footer>
+        <input type="text" id="subdomain" placeholder="subdomain">
+        <text>.atlassian.net</text>
+    </footer>
+    <select id="type">
+      <option value="page">page</option>
+      <option value="blogpost">blogpost</option>
+      <option value="page&blogpost">page&blogpost</option>
+      <option value="all">all</option>
+    </select>
+
+    <footer>
+        <input type="text" id="spacekey" placeholder="SpaceKey">
+    </footer>
+
+    <div id="status_msg"></div>
+    <button id="save">Save</button>
+
+    <script src="options.js"></script>
+  </body>
+</html>
