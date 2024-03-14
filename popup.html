@@ -71,12 +71,18 @@
             border-radius: 3px;
             cursor: pointer;
         }
-        #help {
+        text {
             padding: 5px 10px;
         }
+        #results_msg {
+            font-size: 0.8em;
+        }
+
+        img:focus  {
+            border: solid
+        }
     </style>
-      <script src="jquery-3.7.1.min.js"></script>
-    <script src="popup.js"></script>
+    
 </head>
 <body>
     <h1 id="title">Search Confluence</h1>
@@ -85,15 +91,24 @@
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
     <footer>
-        <a href=""></a><img id="popout" src="images/popout-16.png"></a>
+        <img id="popout" src="images/popout-16.png" style="cursor:pointer;">
         <text id="help"><a href="https://github.com/tdalon/confluence_crx/blob/main/README.md">Help</a></text>
         
         <input type="text" id="spacekey" placeholder="SpaceKey">
         <div id="status_msg"></div>
         <button id="go-to-options">Options</button>
-        
     </footer>    
+    <table>
+        <tr>
+            <td><div id="results_msg" ></div></td>
+            <td><img id="results_prev" src="images/prev-8.png" tabindex=0 style="cursor:pointer;"></td>
+            <td><img id="results_next" src="images/next-8.png" tabindex=0 style="cursor:pointer;"></td>
+        </tr>
+    </table>
     
     <div id="results"></div>
+
+    <script src="jquery-3.7.1.min.js"></script>
+    <script src="popup.js"></script>
 </body>
 </html>

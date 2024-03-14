@@ -1,23 +1,51 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Confluence Quick Search Options</title>
+    <title>Confluence Options</title>
+    <style>
+      body {
+          font-family: Arial, sans-serif;
+          padding: 15px;
+          width: 350px;
+          background-color: #F4F5F7;
+          color: #172B4D;
+      }
+    </style>
   </head>
   <body>
-    <footer>
-        <input type="text" id="subdomain" placeholder="subdomain">
-        <text>.atlassian.net</text>
-    </footer>
-    <select id="type">
-      <option value="page">page</option>
-      <option value="blogpost">blogpost</option>
-      <option value="page&blogpost">page&blogpost</option>
-      <option value="all">all</option>
-    </select>
+    <table>
+      <tr>
+        <td><text>Subdomain</text></td>
+        <td><input type="text" id="subdomain" placeholder="subdomain"></td>
+        <td><text>.atlassian.net</text></td>
+      <tr>
+      
+      <tr>
+        <td><text>Type</text></td>
+        <td>
+        <select id="type">
+          <option value="page">page</option>
+          <option value="blogpost">blogpost</option>
+          <option value="page&blogpost">page&blogpost</option>
+          <option value="all">all</option>
+        </select>
+        </td>
+        <td></td>
+      <tr>
+  
+      <tr>
+        <td><text>Space Key(s)</text></td>
+          <td><input type="text" id="spacekey" placeholder="SpaceKey"></td>
+      </tr>
+  
+      <tr>
+        <td><text>Limit</text></td>
+        <td><input type="number" id="limit" placeholder="Page Size" value="25"><td>
+      </tr>
+    </table>
 
-    <footer>
-        <input type="text" id="spacekey" placeholder="SpaceKey">
-    </footer>
+    <img id="help" src="images/help.png" style="cursor:pointer;">
+    
 
     <div id="status_msg"></div>
     <button id="save">Save</button>

@@ -1,6 +1,18 @@
 
+let g_SearchResponse;
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    chrome.storage.sync.get('subdomain', (data) => {
+		var subdomain = data.subdomain;
+        if (typeof subdomain ==='undefined' || subdomain === '') {
+            alert('Set subdomain in the Options!');
+            window.open(chrome.runtime.getURL('options.html'));
+            return
+        }
+	});
+
+
     const spacekeyInput = document.getElementById('spacekey');
 
     // Load the saved spacekey value when the popup is opened
@@ -36,54 +48,97 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           window.open(chrome.runtime.getURL('options.html'));
         }
-      });
+    });
 
     document.getElementById('popout').addEventListener('click', function() {
-        chrome.tabs.create({url: chrome.runtime.getURL('popup.html#window')});
-      });
+        const q= document.getElementById("confluenceSearchQuery").value;
+        chrome.tabs.create({url: chrome.runtime.getURL('popup.html?q=' + encodeURIComponent(q)) + '#window'});
+    });
+
+
+    document.getElementById('results_next').addEventListener('click', function() {
+      nextResults();
+    });
+
+    document.getElementById('results_prev').addEventListener('click', function() {
+        prevResults();
+    });
+
+    document.getElementById('results_next').addEventListener("keyup", function(e) {
+        if (e.key === 'Enter') {
+            nextResults();
+        }
+    });
+
+    document.getElementById('results_prev').addEventListener("keyup", function(e) {
+        if (e.key === 'Enter') {
+            prevResults();
+        }
+    });
 
      
     if (window.location.hash == '#window') {
         document.getElementById("popout").style.display = "none";
     } else {
         document.getElementById("title").style.display = "none";
+        // make links in popout clickable
         $('body').on('click', 'a', function(){
             chrome.tabs.create({url: $(this).attr('href')});
             return false;
         });
     }
 
-
-      // Load the search option
-	chrome.storage.sync.get('spacekey', (data) => {
-		if (data.spacekey) {
-			spacekeyInput.value = data.spacekey;
-		}
-	});
-
+    // Load the search query if passed as option parameter in the Url
+    const search = window.location.search;
+    if (search) {
+        const params = new URLSearchParams(search);
+        var q= decodeURIComponent(params.get("q"));
+        if (q) {
+            document.getElementById("confluenceSearchQuery").value = q;
+            showResults();
+            return
+        }   
+    } 
+    // Set focus to search bar
+    document.getElementById("confluenceSearchQuery").focus();
+    // hide results_next and results_prev
+    document.getElementById('results_next').style.display = "none";
+    document.getElementById('results_prev').style.display = "none";
 
 });
 
-async function showResults() {
+function nextResults() {
+    var u = g_SearchResponse._links.base + g_SearchResponse._links.next;
+    showResults(u);
+}
+
+function prevResults() {
+    var u = g_SearchResponse._links.base + g_SearchResponse._links.prev;
+    showResults(u);
+}
+
+async function showResults(u) {
+
+    if (arguments.length === 0) {
+        var u = await getSearchUrl();
+    }
 
     const resultsElt = document.getElementById('results');
-
-    let jsonobj;
-
+    // clear previous results
     resultsElt.innerHTML = '';
-    const u = await getSearchUrl();
-    //alert(u);
-    jsonobj = await fetch(u).then(res => res.json());
-    // TODO error handling e.g. not signed in
-
+    
+    g_SearchResponse = await fetch(u).then(res => res.json());
+    if (g_SearchResponse.statusCode=== 403) {
+        alert('Error! Check that you are logged in!')
+        throw new Error(`${g_SearchResponse.message}`);
+    }
 
     var subdomain = await getObjectFromLocalStorage('subdomain');
     var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
 
     const ul = document.createElement('ul');
     ul.classList.add('results');
-
-    jsonobj.results.forEach(result => {
+    g_SearchResponse.results.forEach((result,index) => {
         const li = document.createElement('li');
         li.classList.add('result-item');
 
@@ -97,6 +152,24 @@ async function showResults() {
     });
 
     resultsElt.appendChild(ul);
+    var limit = await getObjectFromLocalStorage('limit');
+    document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (' + limit + ')';
+    
+    if (Object.hasOwn(g_SearchResponse._links,'next')) {
+        document.getElementById('results_next').style.display = "block";
+        document.getElementById('results_next').title = 'Next ' + limit.toString();
+    } else {
+        document.getElementById('results_next').style.display = "none";
+    }
+    if (Object.hasOwn(g_SearchResponse._links,'prev')) {
+        document.getElementById('results_prev').style.display = "block";
+        document.getElementById('results_prev').title = 'Previous ' + limit.toString();
+    } else {
+        document.getElementById('results_prev').style.display = "none";
+    }
+    // focus on Next so that with Tab you can select first result immediately. You can press Enter to click next.
+    document.getElementById('results_next').focus();
+   
 } // eofun showResults
 
 
@@ -105,26 +178,25 @@ async function getSearchUrl() {
     var subdomain = await getObjectFromLocalStorage('subdomain');
     var spacekey = await getObjectFromLocalStorage('spacekey');
     var type = await getObjectFromLocalStorage('type');
+    var limit = await getObjectFromLocalStorage('limit');
     var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
     var cql = Query2Cql(searchQuery,spacekey,type);
-    return rootUrl + '/rest/api/content/search?cql=' + cql ;
-   
+    return rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
 }
 
 // https://gist.github.com/sumitpore/47439fcd86696a71bf083ede8bbd5466
 
 const getObjectFromLocalStorage = async function(key) {
-    return new Promise((resolve, reject) => {
-      try {
-        chrome.storage.sync.get(key, function(value) {
-          resolve(value[key]);
-        });
-      } catch (ex) {
-        reject(ex);
-      }
+return new Promise((resolve, reject) => {
+    try {
+    chrome.storage.sync.get(key, function(value) {
+        resolve(value[key]);
     });
-  };
-
+    } catch (ex) {
+    reject(ex);
+    }
+});
+};
 
 
 function Query2Cql(searchStr,spacekey,type) {
@@ -160,7 +232,6 @@ default:
     console.log(`Sorry, we are out of ${type}.`);
 }
   
-
 if (searchStr) { 
     CQL = CQL + ' AND siteSearch ~ "' + searchStr + '"';
 } 
