@@ -81,6 +81,9 @@
         img:focus  {
             border: solid
         }
+        img {
+            padding: 2px;
+        }
     </style>
     
 </head>
@@ -92,7 +95,7 @@
     </form>
     <footer>
         <img id="popout" src="images/popout-16.png" style="cursor:pointer;">
-        <text id="help"><a href="https://github.com/tdalon/confluence_crx/blob/main/README.md">Help</a></text>
+        <img id="help" src="images/help.png" style="cursor:pointer;">
         
         <input type="text" id="spacekey" placeholder="SpaceKey">
         <div id="status_msg"></div>
@@ -109,6 +112,6 @@
     <div id="results"></div>
 
     <script src="jquery-3.7.1.min.js"></script>
-    <script src="popup.js"></script>
+    <script src="search.js"></script>
 </body>
 </html>

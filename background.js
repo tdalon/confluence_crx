@@ -52,6 +52,12 @@ chrome.contextMenus.create({
 });
 
 chrome.contextMenus.create({
+	id: "crx_options",
+	title: "Options",
+	contexts: ["action"]
+});
+
+chrome.contextMenus.create({
 	id: "crx_rn",
 	title: "Release Notes",
 	contexts: ["action"]
@@ -66,6 +72,13 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 			return;
 		case "crx_rn": 
 			CrxRn();
+			return;
+		case "crx_options":
+			if (chrome.runtime.openOptionsPage) {
+				chrome.runtime.openOptionsPage();
+			  } else {
+				window.open(chrome.runtime.getURL('options.html'));
+			  }
 			return;
 		case "numheading_add": 
 			chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {

@@ -27,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function () {
         showResults();
     });
 
+    document.getElementById('help').addEventListener('click', function() {
+        chrome.tabs.create({url: 'https://github.com/tdalon/confluence_crx'});
+      });
+
     
     document.getElementById('spacekey').addEventListener("keyup", function(e) {
         if (e.key === 'Enter') {
@@ -52,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById('popout').addEventListener('click', function() {
         const q= document.getElementById("confluenceSearchQuery").value;
-        chrome.tabs.create({url: chrome.runtime.getURL('popup.html?q=' + encodeURIComponent(q)) + '#window'});
+        chrome.tabs.create({url: chrome.runtime.getURL('search.html?q=' + encodeURIComponent(q))});
     });
 
 
@@ -76,16 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-     
-    if (window.location.hash == '#window') {
-        document.getElementById("popout").style.display = "none";
-    } else {
+    if (window.location.hash == '#popup') {
         document.getElementById("title").style.display = "none";
         // make links in popout clickable
         $('body').on('click', 'a', function(){
             chrome.tabs.create({url: $(this).attr('href')});
             return false;
         });
+    } else {
+        document.getElementById("popout").style.display = "none";
     }
 
     // Load the search query if passed as option parameter in the Url
@@ -118,11 +121,11 @@ function prevResults() {
 }
 
 async function showResults(u) {
-
+    
     if (arguments.length === 0) {
         var u = await getSearchUrl();
     }
-
+   
     const resultsElt = document.getElementById('results');
     // clear previous results
     resultsElt.innerHTML = '';
@@ -136,10 +139,21 @@ async function showResults(u) {
     var subdomain = await getObjectFromLocalStorage('subdomain');
     var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
 
+    if (g_SearchResponse.results.length === 1) { // quick open
+        u = rootUrl + g_SearchResponse.results[0]._links.webui;
+        if (window.location.hash == '#popup') {
+            chrome.tabs.create({url: u});
+        } else {
+            chrome.tabs.update({url: u});
+        }
+        return;
+    }
+
     const ul = document.createElement('ul');
     ul.classList.add('results');
     g_SearchResponse.results.forEach((result,index) => {
         const li = document.createElement('li');
+        li.tabindex = 0;
         li.classList.add('result-item');
 
         const result_title = document.createElement('h3');
@@ -153,13 +167,15 @@ async function showResults(u) {
 
     resultsElt.appendChild(ul);
     var limit = await getObjectFromLocalStorage('limit');
-    document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (' + limit + ')';
+    document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (max.' + limit + ')';
     
     if (Object.hasOwn(g_SearchResponse._links,'next')) {
         document.getElementById('results_next').style.display = "block";
         document.getElementById('results_next').title = 'Next ' + limit.toString();
+        document.getElementById('results_next').focus();
     } else {
         document.getElementById('results_next').style.display = "none";
+        document.getElementById('go-to-options').focus();
     }
     if (Object.hasOwn(g_SearchResponse._links,'prev')) {
         document.getElementById('results_prev').style.display = "block";
@@ -167,8 +183,6 @@ async function showResults(u) {
     } else {
         document.getElementById('results_prev').style.display = "none";
     }
-    // focus on Next so that with Tab you can select first result immediately. You can press Enter to click next.
-    document.getElementById('results_next').focus();
    
 } // eofun showResults
 
@@ -178,7 +192,13 @@ async function getSearchUrl() {
     var subdomain = await getObjectFromLocalStorage('subdomain');
     var spacekey = await getObjectFromLocalStorage('spacekey');
     var type = await getObjectFromLocalStorage('type');
-    var limit = await getObjectFromLocalStorage('limit');
+    var limit;
+    if (searchQuery.match(/(\s|^)\-?o(\s|$)/)) { // quick open
+        searchQuery=searchQuery.replace(/(\s|^)\-?o(\s|$)/,'');
+        limit=1;
+    } else {
+        limit = await getObjectFromLocalStorage('limit');
+    }
     var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
     var cql = Query2Cql(searchQuery,spacekey,type);
     return rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
