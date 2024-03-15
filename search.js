@@ -169,20 +169,22 @@ async function showResults(u) {
     var limit = await getObjectFromLocalStorage('limit');
     document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (max.' + limit + ')';
     
+    document.getElementById('go-to-options').focus();
+    if (Object.hasOwn(g_SearchResponse._links,'prev')) {
+        document.getElementById('results_prev').style.display = "block";
+        document.getElementById('results_prev').title = 'Previous ' + limit.toString();
+        document.getElementById('results_next').focus();
+    } else {
+        document.getElementById('results_prev').style.display = "none";
+    }
     if (Object.hasOwn(g_SearchResponse._links,'next')) {
         document.getElementById('results_next').style.display = "block";
         document.getElementById('results_next').title = 'Next ' + limit.toString();
         document.getElementById('results_next').focus();
     } else {
         document.getElementById('results_next').style.display = "none";
-        document.getElementById('go-to-options').focus();
     }
-    if (Object.hasOwn(g_SearchResponse._links,'prev')) {
-        document.getElementById('results_prev').style.display = "block";
-        document.getElementById('results_prev').title = 'Previous ' + limit.toString();
-    } else {
-        document.getElementById('results_prev').style.display = "none";
-    }
+  
    
 } // eofun showResults
 
