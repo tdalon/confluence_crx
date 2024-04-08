@@ -18,6 +18,7 @@
 
 # About
 
+
 This extension only supports Confluence Cloud variant. (You might easily adapt it for server/data center version.) 
 It provides search capability and some additional functionality.
 
@@ -74,6 +75,8 @@ After a search you can quickly TAB to the results. Press ENTER to open the link.
 
 # Omnibox
 
+With the extension an omnibox keyword is implemented: It is the 'c' keyword.
+In the omnibox, type 'c' followed by Tab. It will complete into 'Confluence'. Then enter your search query as explained above.
 With the extension an omnibox keyword is implemented: It is the 'c' keyword.
 In the omnibox, type 'c' followed by Tab. It will complete into 'Confluence'. Then enter your search query as explained above.
 
