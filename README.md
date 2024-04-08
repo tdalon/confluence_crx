@@ -1,4 +1,3 @@
-
 - [About](#about)
 - [Options](#options)
   - [Subdomain](#subdomain)
@@ -18,9 +17,24 @@
 
 
 # About
+
 This extension only supports Confluence Cloud variant. (You might easily adapt it for server/data center version.) 
 It provides search capability and some additional functionality.
-See Blog posts labelled with [#confluence_crx](https://tdalon.blogspot.com/search/label/confluence_crx)
+
+See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) and Blog posts labelled with [#confluence_crx](https://tdalon.blogspot.com/search/label/confluence_crx)
+
+<p align="left">
+<a href="https://chrome.google.com/webstore/detail/confluence/dkofhaiegpbdikenaoljlbencjdbbpii">
+  <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png">Chrome Webstore
+  </a>
+</p>
+
+<p align="center">
+<a href="docs/assets/images/promo.png">
+  <img src="docs/assets/images/promo_small.png">
+  </a>
+</p>
+
 
 # Options
 
@@ -60,8 +74,8 @@ After a search you can quickly TAB to the results. Press ENTER to open the link.
 
 # Omnibox
 
-The search is only implemented with an Omnibox keyword.
-In the omnibox, type 'c' followed by Tab. It will complete into 'Confluence'. Then enter your query as explained above.
+With the extension an omnibox keyword is implemented: It is the 'c' keyword.
+In the omnibox, type 'c' followed by Tab. It will complete into 'Confluence'. Then enter your search query as explained above.
 
 ## Change the omnibox keyword
 
