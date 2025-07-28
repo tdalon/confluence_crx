@@ -1,14 +1,16 @@
 {
    "name": "Confluence",
-   "description": "Chrome Extension for Confluence Cloud ",
+   "description": "Chrome Extension for Confluence",
    "short_name": "confluence",
    "author":"Thierry Dalon",
    "host_permissions": [ "https://*.atlassian.net/wiki/" ],
-   "version": "1.0",
+   "optional_host_permissions": ["https://*/*"],
+   "version": "1.2",
    "manifest_version": 3, 
-   "permissions": ["storage","contextMenus","scripting","activeTab"],
+   "permissions": ["storage","contextMenus","scripting","activeTab","notifications","clipboardWrite"],
    "background": {
-      "service_worker": "background.js"
+      "service_worker": "background.js",
+      "type": "module"
     },
    "action": {
       "default_icon": {
@@ -25,7 +27,7 @@
       "open_in_tab": false
     },
    "commands": {
-      "_execute_action": {
+      "open_popup": {
          "description": "Open Confluence Quick Search",
          "global": true,
          "suggested_key": {
@@ -33,6 +35,16 @@
             "linux": "Ctrl+Shift+K",
             "mac": "Command+Shift+K",
             "windows": "Ctrl+Shift+K"
+         }
+      },
+      "copy_link": {
+         "description": "Copy Nice Page Link",
+         "global": true,
+         "suggested_key": {
+            "chromeos": "Ctrl+Shift+C",
+            "linux": "Ctrl+Shift+C",
+            "mac": "Command+Shift+C",
+            "windows": "Ctrl+Shift+C"
          }
       }
    },

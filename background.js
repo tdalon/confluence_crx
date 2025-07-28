@@ -1,13 +1,29 @@
+import {getSearchUrl, getObjectFromLocalStorage, getSingleSpaceKey, CopyLink} from './shared.js';
+
+
 // Commands
 chrome.commands.onCommand.addListener(function (command) {
 switch (command) {
 	case "share2teams": 
-		Share2Teams();
+		//Share2Teams();
 		return;
-	case "GoodreadsEdit": 
-		GoodreadsEdit();
+	case "copy_link": 
+		chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+			await CopyLink(tabs[0]);
+		});
 		return;
-					
+	case "open_popup": // The command name defined in manifest.json
+		chrome.windows.create({
+			url: chrome.runtime.getURL("search.html#popup"), // Open the popup window
+			type: "popup",
+			width: 550, // Match the width of your popup
+			height: 800, // Adjust height as needed
+			//  top: 100, Optional: Position the popup
+			// left: 100  Optional: Position the popup
+		});
+		return;
+        default:
+            console.log(`Unknown command: ${command}`);			
 } // end switch
 
 }); // end command.addListener
@@ -24,43 +40,85 @@ chrome.tabs.create({ url:"https://github.com/tdalon/confluence_crx/blob/main/Cha
 
 
 
-// Context menus
-chrome.contextMenus.removeAll();
+async function updateContextMenus() {
+    // Retrieve the RootUrl from storage
+    const rootUrl = await getObjectFromLocalStorage('rooturl');
 
-chrome.contextMenus.create({
-    title: "Numbered Headings: Add Numbers",
-	id: "numheading_add",
-	contexts:["page","frame","selection","link","editable"],
-    "documentUrlPatterns": ["https://*.atlassian.net/wiki/*/edit-v2/*","https://*.atlassian.net/wiki/*/edit/*" ]
-});
+    if (!rootUrl) {
+        console.log('RootUrl is not set. Context menus will not be updated.');
+        return;
+    }
 
-chrome.contextMenus.create({
-    title: "Numbered Headings: Remove Numbers",
-	id: "numheading_remove",
-	contexts:["page","frame","selection","link","editable"],
-    "documentUrlPatterns": ["https://*.atlassian.net/wiki/*/edit-v2/*","https://*.atlassian.net/wiki/*/edit/*" ]
-});
+    // Remove all existing context menus
+    chrome.contextMenus.removeAll();
 
+    // Construct the documentUrlPatterns dynamically based on the RootUrl
+	//"documentUrlPatterns": ["https://*.atlassian.net/wiki/*/edit-v2/*","https://*.atlassian.net/wiki/*/edit/*" ]
+    const pageEditUrlPatterns = [
+        `${rootUrl}/*/edit-v2/*`, // Cloud
+        `${rootUrl}/*/edit/*`,
+		`${rootUrl}/pages/resumedraft.action` // server/DC
+    ];
 
-// Top level Number limited to 6
+	const pageViewUrlPatterns = [
+        `${rootUrl}/pages/*` ,
+		`${rootUrl}/display/*`
+    ];
 
+	chrome.contextMenus.create({
+        id: "copy_link",
+        title: "Copy Link",
+        contexts: ["page", "frame", "selection", "link", "editable","action"],
+		documentUrlPatterns: pageViewUrlPatterns
+    });
 
-chrome.contextMenus.create({
-	id: "crx_help",
-	title: "Help",
-	contexts: ["action"]
-});
+    // Create context menus with the dynamically generated documentUrlPatterns
+    chrome.contextMenus.create({
+        title: "Numbered Headings: Add Numbers",
+        id: "numheading_add",
+        contexts: ["page", "frame", "selection", "link", "editable"],
+        documentUrlPatterns: pageEditUrlPatterns
+    });
 
-chrome.contextMenus.create({
-	id: "crx_options",
-	title: "Options",
-	contexts: ["action"]
-});
+    chrome.contextMenus.create({
+        title: "Numbered Headings: Remove Numbers",
+        id: "numheading_remove",
+        contexts: ["page", "frame", "selection", "link", "editable"],
+        documentUrlPatterns: pageEditUrlPatterns
+    });
 
-chrome.contextMenus.create({
-	id: "crx_rn",
-	title: "Release Notes",
-	contexts: ["action"]
+    // Create other static context menus
+    chrome.contextMenus.create({
+        id: "crx_help",
+        title: "Help",
+        contexts: ["action"]
+    });
+
+    chrome.contextMenus.create({
+        id: "crx_options",
+        title: "Options",
+        contexts: ["action"]
+    });
+
+    chrome.contextMenus.create({
+        id: "crx_rn",
+        title: "Release Notes",
+        contexts: ["action"]
+    });
+
+	
+
+    console.log('Context menus updated with RootUrl:', rootUrl);
+}
+
+// Call updateContextMenus when the extension starts
+updateContextMenus();
+
+// Listen for changes to the RootUrl and update context menus dynamically
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'sync' && changes.rooturl) {
+        updateContextMenus();
+    }
 });
 
 
@@ -96,6 +154,11 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 				});
 			})
 			return;
+		case "copy_link": 
+		    chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+				await CopyLink(tabs[0]);
+			});
+			return;
 		default:
 			return
 					 
@@ -105,26 +168,70 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
 
 	
 // #START
-chrome.omnibox.onInputEntered.addListener(
-    function (searchStr) {
+chrome.omnibox.onInputEntered.addListener(async function (searchQuery) {
 
 // if user enters a keyword after the omnibox keyword, redirect search to different destination
-var splitText = searchStr.split(' ');
+var splitText = searchQuery.split(' ');
 var firstWord = splitText[0];
 
-if (firstWord == "-h") {
-	CrxHelp();
-	return
+if (firstWord === "h" || firstWord === "-h") {
+    CrxHelp();
+    return;
 }
 
-if (firstWord == "-r") {
+if ((firstWord == "-r") || firstWord === "r"){
 	CrxRn();
 	return
 }
 
-chrome.tabs.update({url: chrome.runtime.getURL('popup.html?q=' + encodeURIComponent(searchStr)) + '#window'});
+// create a new page
+if ((firstWord == "-c") || firstWord === "c"){
+	
+	var spaceKey = await getSingleSpaceKey(searchQuery);
+	if (!spaceKey) { // fallback if defspace not set to settings
+		return 
+	}
+	const rooturl = await getObjectFromLocalStorage('rooturl');
+	const u = rooturl + '/pages/createpage.action?spaceKey=' + spaceKey; 
+	// Open the URL in new tab and exit the function
+	chrome.tabs.update({ url: u });
+	return
+}
 
-});
+// Quick Navigate to Space
+
+if (firstWord === "n" || firstWord === "-n") {
+	var spaceKey = await getSingleSpaceKey(searchQuery);
+	if (!spaceKey) { // fallback if defspace not set to settings
+		return 
+	}
+	const rooturl = await getObjectFromLocalStorage('rooturl');
+	let u;
+	if (rooturl.includes(".atlassian.net")) { // cloud
+    	u = rooturl + '/spaces/' + spaceKey;  
+	} else {
+		u = rooturl + '/display/' + spaceKey; 
+	}
+	// Open the URL in new tab and exit the function
+	chrome.tabs.update({ url: u });
+	return
+}
+
+//const searchQuery = encodeURIComponent(searchQuery);
+const advancedSearch = await getObjectFromLocalStorage('advancedsearch');
+
+if (advancedSearch && !searchQuery.match(/(\s|^)\-?o(\s|$)/)) { // not quick open
+	const u = await getSearchUrl(searchQuery); 
+	// Open the URL in new tab and exit the function
+	chrome.tabs.update({ url: u });
+} else {
+	searchQuery = encodeURIComponent(searchQuery); // for conflict with #label
+	chrome.tabs.update({url: chrome.runtime.getURL('search.html?q=' + searchQuery) + '#window'});
+}
+
+
+}); // end omnibox.onInputEntered.addListener
+
 
 
 String.prototype.replaceAll = function(search, replacement) {

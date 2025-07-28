@@ -8,7 +8,8 @@
         body {
             font-family: Arial, sans-serif;
             padding: 15px;
-            width: 350px;
+            /* width: 350px; */
+            width: 450px;
             background-color: #F4F5F7;
             color: #172B4D;
         }
@@ -84,14 +85,23 @@
         img {
             padding: 2px;
         }
-    </style>
+
+        .space-key {
+        color:#6c757d; /* Grey color */
+        /* font-weight: bold; Make it bold */
+        font-size: 0.8em; /* Slightly smaller font size */
+        margin-left: 5px;
+        font-style: italic;
+        }
+
+</style>
     
 </head>
 <body>
     <h1 id="title">Search Confluence</h1>
     <form id="confluenceForm" class="form-inline mb-2">
         <input type="text" id="confluenceSearchQuery" placeholder="Enter search query." required>
-        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-primary" title="Hold Ctrl or Shift and click to open Confluence advanced search.">Search</button>
     </form>
     <footer>
         <img id="popout" src="images/popout-16.png" style="cursor:pointer;">
@@ -112,6 +122,6 @@
     <div id="results"></div>
 
     <script src="jquery-3.7.1.min.js"></script>
-    <script src="search.js"></script>
+    <script type="module" src="search.js"></script>
 </body>
 </html>

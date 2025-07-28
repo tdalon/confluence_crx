@@ -15,9 +15,8 @@
   <body>
     <table>
       <tr>
-        <td><text>Subdomain</text></td>
-        <td><input type="text" id="subdomain" placeholder="subdomain"></td>
-        <td><text>.atlassian.net</text></td>
+        <td><text>Root Url</text></td>
+        <td><input type="text" id="rooturl" placeholder="rooturl"></td>
       <tr>
       
       <tr>
@@ -30,19 +29,39 @@
           <option value="all">all</option>
         </select>
         </td>
-        <td></td>
       <tr>
   
       <tr>
         <td><text>Space Key(s)</text></td>
           <td><input type="text" id="spacekey" placeholder="SpaceKey"></td>
       </tr>
+
+      <tr>
+        <td><text>Default Space</text></td>
+        <td>
+        <select id="defspace">
+          <option value="l">last accessed</option>
+          <option value="g">global</option>
+          <option value="s">setting</option>
+        </select>
+        </td>
+      <tr>
   
       <tr>
         <td><text>Limit</text></td>
         <td><input type="number" id="limit" placeholder="Page Size" value="25"><td>
       </tr>
+      <tr>
+        <td>
+          <label for="advancedSearch" title="When searching from the omnibox, use Confluence native advanced Search if selected.">Advanced Search</label>
+        </td>
+        <td>
+          <input type="checkbox" id="advancedsearch">
+        </td>
+      </tr>
+    
     </table>
+
 
     <img id="help" src="images/help.png" style="cursor:pointer;">
     

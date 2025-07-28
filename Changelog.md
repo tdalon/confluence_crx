@@ -2,9 +2,27 @@
 
 
 ## TODO
-* Open Advanced search
 * Context Menu: [Insert Image by url](https://tdalon.blogspot.com/2024/01/confluence-insert-webimage.html)
 * Add quick sort options like in PowerTool. (created by me, last updated by me, sort by last updated)
+
+## 2025-07
+*: Fix: omnibox search with #label
+* Option to pass space key as argument in the query
+* Keyword to quick navigate to space
+* Fix: [Ctrl/Shift Click/Submit](https://www.perplexity.ai/search/in-my-chrome-extension-i-have-M_y8SHhqQ6KNjgPviHNC3g) 
+* [Copy Nice Link](README.md#copy-link) (also for non Confluence link)
+* Fix Extension Keyboard Shortcut not working.
+* Option for default space: setting, last accessed or global
+* Keywords to overwrite space: setting (s), last accessed (l) or global (g)
+* Keyword Quick Create (c)
+* Option for omnibox search mode: advanced search vs. extension search
+* Refactoring using share.js
+* Advanced search by Ctrl+Click on Search button
+* Support for Server/ DataCenter (added permissions handling)
+* In case of search in multi-spaces, display space in search results
+
+## 2024-09
+* Support for server-based version preparation: Change subdomain to rooturl
 
 ## 2024-03-15
 * Rename files popout.* to search.*

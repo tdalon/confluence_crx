@@ -1,17 +1,32 @@
 
+import {Query2Cql, getSpaceKeyFromUrl, getSearchUrl, getSpaceKey} from './shared.js';
+
 let g_SearchResponse;
+
+// Store the state of Ctrl and Shift keys for advanced Search switch https://www.perplexity.ai/search/in-my-chrome-extension-i-have-M_y8SHhqQ6KNjgPviHNC3g
+let isCtrlPressed = false;
+let isShiftPressed = false;
+
+window.addEventListener('keydown', function(e) {
+    if (e.key === "Control") isCtrlPressed = true;
+    if (e.key === "Shift") isShiftPressed = true;
+});
+window.addEventListener('keyup', function(e) {
+    if (e.key === "Control") isCtrlPressed = false;
+    if (e.key === "Shift") isShiftPressed = false;
+});
+
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    chrome.storage.sync.get('subdomain', (data) => {
-		var subdomain = data.subdomain;
-        if (typeof subdomain ==='undefined' || subdomain === '') {
-            alert('Set subdomain in the Options!');
+    chrome.storage.sync.get('rooturl', (data) => {
+		var rooturl = data.rooturl;
+        if (typeof rooturl ==='undefined' || rooturl === '') {
+            alert('Set Confluence rooturl in the Options!');
             window.open(chrome.runtime.getURL('options.html'));
             return
         }
 	});
-
 
     const spacekeyInput = document.getElementById('spacekey');
 
@@ -22,9 +37,23 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	});
 
-    document.getElementById('confluenceForm').addEventListener('submit', function (e) {
+
+    const formElement = document.getElementById('confluenceForm');
+    
+    
+    document.getElementById('confluenceForm').addEventListener('submit', async function (e) {
+        //if (e.ctrlKey || e.shiftKey) { // does not work properly - undefined
+        if (isCtrlPressed || isShiftPressed) {
+            // If Ctrl or Shift is pressed, call advancedSearch
+            const searchQuery = document.getElementById('confluenceSearchQuery').value;
+            const u = await getSearchUrl(searchQuery); 
+            // Open the URL in new tab and exit the function
+            chrome.tabs.create({ url: u });
+        } else {
+            // Otherwise, call showResults
+            showResults();
+        }
         e.preventDefault();
-        showResults();
     });
 
     document.getElementById('help').addEventListener('click', function() {
@@ -122,23 +151,27 @@ function prevResults() {
 
 async function showResults(u) {
     
-    if (arguments.length === 0) {
-        var u = await getSearchUrl();
+     const rootUrl = await getObjectFromLocalStorage('rooturl');
+    if (!u) {
+        u = await getApiSearchUrl(rootUrl);
     }
-   
+    
+
     const resultsElt = document.getElementById('results');
     // clear previous results
     resultsElt.innerHTML = '';
     
+
+    // Use fetch 
     g_SearchResponse = await fetch(u).then(res => res.json());
-    if (g_SearchResponse.statusCode=== 403) {
-        alert('Error! Check that you are logged in!')
+
+    if (g_SearchResponse.statusCode === 403) {
+        alert('Error! Check that you are logged in!');
         throw new Error(`${g_SearchResponse.message}`);
     }
 
-    var subdomain = await getObjectFromLocalStorage('subdomain');
-    var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
-
+    // code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
+    
     if (g_SearchResponse.results.length === 1) { // quick open
         u = rootUrl + g_SearchResponse.results[0]._links.webui;
         if (window.location.hash == '#popup') {
@@ -148,24 +181,32 @@ async function showResults(u) {
         }
         return;
     }
+    
+    const ismultispace = !u.includes(" AND space=");
 
     const ul = document.createElement('ul');
     ul.classList.add('results');
-    g_SearchResponse.results.forEach((result,index) => {
+
+    for (const result of g_SearchResponse.results) {
         const li = document.createElement('li');
         li.tabindex = 0;
         li.classList.add('result-item');
 
         const result_title = document.createElement('h3');
-        result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a>';
+        if (ismultispace) {
+            const spaceKey = await getSpaceKeyFromUrl(rootUrl + result._links.webui);
+            result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a><span class="space-key">' + spaceKey + '</span>';
+        } else {
+            result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a>';
+        }
+
         result_title.classList.add('result-title');
-
         li.appendChild(result_title);
-
         ul.appendChild(li);
-    });
+    }
 
     resultsElt.appendChild(ul);
+    
     var limit = await getObjectFromLocalStorage('limit');
     document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (max.' + limit + ')';
     
@@ -189,11 +230,21 @@ async function showResults(u) {
 } // eofun showResults
 
 
-async function getSearchUrl() {
+async function getApiSearchUrl(rootUrl) {
+    
+    // If no rootUrl is passed, retrieve it dynamically
+    if (!rootUrl) {
+         const rootUrl = await getObjectFromLocalStorage('rooturl');
+    }
+    
     var searchQuery = document.getElementById('confluenceSearchQuery').value;
-    var subdomain = await getObjectFromLocalStorage('subdomain');
-    var spacekey = await getObjectFromLocalStorage('spacekey');
-    var type = await getObjectFromLocalStorage('type');
+    
+    
+   const spacekey = await getSpaceKey(searchQuery);
+    // remove -l option if present in searchQuery
+    searchQuery=searchQuery.replace(/(\s|^)\-?l(\s|$)/,'');
+     
+    const type = await getObjectFromLocalStorage('type');
     var limit;
     if (searchQuery.match(/(\s|^)\-?o(\s|$)/)) { // quick open
         searchQuery=searchQuery.replace(/(\s|^)\-?o(\s|$)/,'');
@@ -201,9 +252,10 @@ async function getSearchUrl() {
     } else {
         limit = await getObjectFromLocalStorage('limit');
     }
-    var rootUrl = `https://${subdomain}.atlassian.net/wiki`; 
-    var cql = Query2Cql(searchQuery,spacekey,type);
-    return rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
+    let cql = Query2Cql(searchQuery,spacekey,type);
+    let searchUrl = rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
+    //alert(searchUrl);
+    return searchUrl;
 }
 
 // https://gist.github.com/sumitpore/47439fcd86696a71bf083ede8bbd5466
@@ -219,61 +271,3 @@ return new Promise((resolve, reject) => {
     }
 });
 };
-
-
-function Query2Cql(searchStr,spacekey,type) {
-// parse labels with prefix # 
-patt = /#[^ ]*/g;
-arrMatch=searchStr.match(patt);
-var CQLLabels = '';
-if (arrMatch !== null){
-    for (var i= 0;i<arrMatch.length;i++){
-        var tag=arrMatch[i];
-        tag=tag.slice(1); // remove trailing #
-        tag= tag.replace("&","%26");
-        CQLLabels = CQLLabels + '+AND+label+=+' + tag  ;
-    }// end for tag array			
-    searchStr = searchStr.replace(patt,"");
-}
-searchStr = searchStr.trim();
-//CQL = encodeURIComponent(searchStr) ;
-
-switch (type) {
-case 'all':
-    break;
-case 'page':
-    CQL = 'type=' + type;
-    break;
-case 'blogpost':
-    CQL = 'type=' + type;
-    break;
-case 'page&blogpost':
-    CQL = '(type=page OR type=blogpost)'
-    break;
-default:
-    console.log(`Sorry, we are out of ${type}.`);
-}
-  
-if (searchStr) { 
-    CQL = CQL + ' AND siteSearch ~ "' + searchStr + '"';
-} 
-if (spacekey) {
-    var spaceCQL;
-    var key_array = spacekey.split(',');
-    for (let i = 0; i < key_array.length; i++) {
-        if (i==0) {
-            spaceCQL = 'space=' + key_array[i].trim();
-        } else {
-            spaceCQL = spaceCQL + ' OR space=' + key_array[i].trim();
-        }
-    }
-    if (key_array.length>1) {
-        spaceCQL = '(' + spaceCQL + ')';
-    }
-    CQL = CQL + ' AND ' + spaceCQL ;
-}
-if (CQLLabels) {
-    CQL = CQL + CQLLabels ;
-}     
-return CQL;
-} // eofun
