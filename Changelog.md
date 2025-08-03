@@ -4,7 +4,8 @@
 ## TODO
 * Add quick sort options (created by me, last updated by me, sort by last updated)
 
-## 2025-07-31 (v1.3)
+## 2025-08-03 (v1.3)
+* Fix: if only subdomain is entered in rooturl, autocomplete with .atlassian.net
 * Options Hotkeys: Esc to close and Ctrl+S to save and close
 * Copy Link Breadcrumb Format
 * Copy Link: Option for Link Format (short, middle, full)

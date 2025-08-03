@@ -37,7 +37,10 @@ const saveOptions = () => {
     // remove trailing slash if present
     rooturl = rooturl.replace(/\/$/, "");
     // append .atlassian.net if only subdomain is provided (without .)
-
+    if (!rooturl.includes('.')) {
+      rooturl += '.atlassian.net';
+    }
+    
     // ensure rooturl starts with http or https
     if (!rooturl.match(/^http/)) {
         rooturl = `https://${rooturl}`;
