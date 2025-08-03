@@ -18,18 +18,20 @@
 
 # About
 
-
 This extension supports Confluence Cloud and Confluence Server variants.
 It provides search capability and some additional functionality.
+
+It doesn't require the user to provide authentication, login credentials but simply permission for accessing Confluence if you don't use the cloud version. Note: Only read permission is used. (but Chrome can not distinguish.)
 
 See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) and Blog posts labelled with [#confluence_crx](https://tdalon.blogspot.com/search/label/confluence_crx)
 
 <p align="left">
 <a href="https://chrome.google.com/webstore/detail/confluence/dkofhaiegpbdikenaoljlbencjdbbpii">
-  <img src="https://developer.chrome.com/static/docs/webstore/branding/image/206x58-chrome-web-bcb82d15b2486.png">Chrome Webstore
+  <img src="https://developer.chrome.com/static/docs/webstore/branding/image/206x58-chrome-web-bcb82d15b2486.png"> Chrome Web Store
   </a>
 </p>
 
+Extension Overview:
 <p align="center">
 <a href="docs/assets/images/promo.png">
   <img src="docs/assets/images/promo_small.png">
@@ -39,6 +41,17 @@ See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) an
 
 # Options
 
+You can access the Options from the Extension Button Action Menu (Right-click) or from the Search Popup 'Options' Button.
+
+<p align="center">
+<a href="docs/assets/images/options.png">
+  <img src="docs/assets/images/options_resized.png">
+  </a>
+</p>
+
+Pressing Esc will close the Options Window. 
+Pressing Ctrl+S will save the Options and close the Window.
+
 ## rooturl
 
 For Confluence Cloud it shall look like `https://${subdomain}.atlassian.net` (/wiki will be appended automatically)
@@ -46,9 +59,10 @@ You can only provide the subdomain string and the rooturl will automatically be 
 You can leave out the https:// portion.
 The first time you click on the extension button the options page will be opened so you can provide it.
 
-You can open the options from the popup 'Options' button or from the Extension Action Menu.
+## Space Key(s)
 
-Other options include:
+You can enter multiple space keys separated by a comma (,). In this case it will search in the different spaces i.e. with an OR combination.
+If no space key is entered, the search runs in your whole Confluence instance.
 
 ## Default Space
 
@@ -58,18 +72,47 @@ If no space keyword is used the default space can be specified as:
 * last accessed: the last accessed space key. It will look for the last Confluence tab opened in the current window and use the same space 
 * global: no space filter / runs a global search 
 
-## Space Key
-
-You can enter multiple space keys separated by a comma (,). In this case it will search in the different spaces i.e. with an OR combination.
-If no space key is entered, the search runs in your whole Confluence instance.
-
-
 ## Limit
 
 This is the limit for the number of results returned by the search query. Default is 25. See doc [pagination](https://developer.atlassian.com/server/confluence/pagination-in-the-rest-api/).
 
+## Advanced Search
+
+If it is selected, when you search from the omnibox, it will open by default the native Confluence Advanced Search instead of the Extension Search page.
+No limit to the search results is applied in this case.
+
+## Link Format
+
+In this setting, you can preconfigure which size the link to a Confluence page shall have:
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| **Full** | Complete title with page name, space name, and Confluence instance | Page Title - Space Name - Confluence Name |
+| **Middle** | Page title and space name only | Page Title - Space Name |
+| **Short** | Page title only | Page Title |
+| **Breadcrumb** | Path format showing the page hierarchy | Space > Parent 1 > Parent 2 > ... > Current Page |
+| **?** | Ask each time i.e Shows a dialog to select format |
+
+The breadcrumb format shows the page's location in the hierarchy, making it useful for sharing context. You can configure how many ancestor levels to skip from the root/ home or to display backward using the "Breadcrumb Start Level" setting.
 
 
+
+## Breadcrumb Start Level
+
+This numeric setting controls how many ancestor levels to skip from the top or display backward when creating a breadcrumb link:
+
+| **Setting Value** | **Description**                                                                 |
+|--------------------|-------------------------------------------------------------------------------|
+| **0**             | Include all ancestors (Space >  > ... > Page) from the Home to the Page.                      |
+| **1**             | Skip the first ancestor from the left in the breadcrumb i.e. after Home  |
+| **-1**            | display only Space > Current Page.                                 |
+| **-2**            | Display only first parent from the right in the breadcrumb (Space > Parent 1> Current Page)                        |
+| **-3**            | Include only the first two ancestors (Space > Parent 2 > Parent 1 > Current Page).         |
+
+The Home Page is not displayed in the Breadcrumb to make it more compact. When you click on the Space link it will open the Home Page of the Space anyway.
+
+Higher positive values will skip more levels from the top, while negative values will include more levels starting from rigth to the top/home. 
+The default is **0**, which typically skips the space home page. Depending on your space structure, you might want to adjust this setting.
 
 # Search 
 
@@ -105,7 +148,7 @@ After a search you can quickly TAB to the results. Press ENTER to open the link.
 
 ## Multiple Spaces
 
-In case you search in multiple spaces (eiter globally or because you have defined a list of Spaces (comma-separated) in the options), the space information will be displayed in the search results next to the result title.
+In case you search in multiple spaces (either globally or because you have defined a list of Spaces (comma-separated) in the options), the space information will be displayed in the search results next to the result title.
 
 # Omnibox
 
@@ -177,6 +220,8 @@ You can access in the Browser "Copy Link" from a page context menu, the Extensio
 
 Note: this works not only for Confluence pages. It will build a html link with the link text taken from the current Tab title. 
 For Confluence pages, the url is transformed in case it is a Confluence url link by page title and not by page Id. (This makes the link robust to page renaming or moving.)
+
+N.B.: The copy link feature does not work if the address bar is selected due to Browser Security Limitations. Escape the address bar or refocus on the window before running copy/link.
 
 See separate blog post [here](https://tdalon.blogspot.com/2021/04/confluence-share-link.html) regarding motivation and implementation.
 

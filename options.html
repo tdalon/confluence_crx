@@ -59,6 +59,26 @@
           <input type="checkbox" id="advancedsearch">
         </td>
       </tr>
+      
+      <tr>
+        <td><text>Link Format</text></td>
+        <td>
+        <select id="linkFormat" title="Link display text format. Page Title - Space Name - Confluence Name">
+          <option value="short">short</option>
+          <option value="middle">middle</option>
+          <option value="full">full</option>
+          <option value="breadcrumb">breadcrumb</option>
+          <option value="?">?</option>
+        </select>
+        </td>
+      <tr>
+      <tr>
+        <td><text>Breadcrumb Start Level</text></td>
+        <td>
+          <input type="number" id="startBreadcrumb" min="-10" max="10" value="0" 
+                 title="Start level for the breadcrumb (0 = include all, 1, : skip first level after Home, -1: only space, -2: first parent)">
+        </td>
+      </tr>
     
     </table>
 

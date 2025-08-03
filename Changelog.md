@@ -2,11 +2,17 @@
 
 
 ## TODO
-* Context Menu: [Insert Image by url](https://tdalon.blogspot.com/2024/01/confluence-insert-webimage.html)
-* Add quick sort options like in PowerTool. (created by me, last updated by me, sort by last updated)
+* Add quick sort options (created by me, last updated by me, sort by last updated)
 
-## 2025-07
-*: Fix: omnibox search with #label
+## 2025-07-31 (v1.3)
+* Options Hotkeys: Esc to close and Ctrl+S to save and close
+* Copy Link Breadcrumb Format
+* Copy Link: Option for Link Format (short, middle, full)
+* Fix: search with -s overwrite add undefined to search query
+* README improved
+
+## 2025-07 (v1.2)
+* Fix: omnibox search with #label
 * Option to pass space key as argument in the query
 * Keyword to quick navigate to space
 * Fix: [Ctrl/Shift Click/Submit](https://www.perplexity.ai/search/in-my-chrome-extension-i-have-M_y8SHhqQ6KNjgPviHNC3g) 

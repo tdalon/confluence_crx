@@ -56,26 +56,28 @@ async function getRootUrl() {
     return rooturl;
 };
 
-export async function CopyLink(tab) { 
+export async function CopyLink(tab,format = null) { 
     
     let url = tab.url;
     const rootUrl = extractRootUrl(url); // Extract the root URL
     const CrxRootUrl = await getObjectFromLocalStorage('rooturl');
-    let IsConfluenceUrl = (CrxRootUrl=== rootUrl) || (rootUrl.includes('atlassian.net'))
+    let IsConfluenceUrl = (CrxRootUrl=== rootUrl) || (rootUrl.includes('atlassian.net/wiki/'))
     let hintText;
     if (!IsConfluenceUrl)  {
         console.log('Link is not a Confluence link');
         hintText="Nice link was copied to the clipboard!";
     } else {
-         hintText = "Nice Confluence Page link was copied to the clipboard!";
+        hintText = "Nice Confluence Page link was copied to the clipboard!";
     }
+    let pageId;
     if (rootUrl.includes('atlassian.net')) { // cloud version
         // remove edit portion
         url = url.replace(/\/edit\//, '');
         url = url.replace(/\/edit-v2\//, '');
     } else {
         if (IsConfluenceUrl)  {
-            let pageId = await getPageIdFromUrl(url);
+            pageId = await getPageIdFromUrl(url);
+            console.log('Page ID:', pageId);
             if (pageId) {
                 url = `${rootUrl}/pages/viewpage.action?pageId=${pageId}`; // Construct the full link
             } else {
@@ -90,23 +92,70 @@ export async function CopyLink(tab) {
     // For Confluence links strip second part in title about Confluence instance
     // Use regex to extract the substring before the second '-'
     if (hintText.includes('Confluence')) {
-        const match = text.match(/^(.*?\s-\s.*?)\s-\s/); // Match everything up to the second ' - '
-        if (match) {
-            text = match[1]; // Extract the matched substring and trim whitespace
+        var linkFormat= (format || await getObjectFromLocalStorage('linkFormat'));
+        if (linkFormat === '?') {
+            // ask user by question dlg to select between full, middle, short or breadcrumb display mode
+            linkFormat = await selectlinkFormat(tab);
+            if (linkFormat  === null) {
+                console.log('User cancelled the question dialog.');
+                return;
+            }
         }
+
+        let lastDashIndex;
+        switch (linkFormat) {
+            case 'short':
+                lastDashIndex = text.lastIndexOf(' - ');
+                if (lastDashIndex !== -1) {
+                    text = text.substring(0, lastDashIndex);
+                }
+            case 'middle':
+                lastDashIndex = text.lastIndexOf(' - ');
+                if (lastDashIndex !== -1) {
+                    text = text.substring(0, lastDashIndex);
+                }
+            case 'full':
+                break;
+            case 'breadcrumb':
+                // Get the startBreadcrumb parameter from storage
+                const startBreadcrumb = await getObjectFromLocalStorage('startBreadcrumb') ;
+                // Convert to integer
+                const sliceIdx = parseInt(startBreadcrumb, 10);
+                // Pass the sliceIdx parameter to getHtmlBreadcrumb
+                const htmlBreadcrumb = await getHtmlBreadcrumb(pageId, url, sliceIdx);
+
+                // Copy to clipboard
+                Clip(tab,htmlBreadcrumb,htmlBreadcrumb);
+
+                hintText = "Nice Breadcrumb link was copied to the clipboard!";
+                chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                func: showHint,
+                args: [hintText]
+                });
+                return
+
+            default:
+                console.log('Invalid linkFormat value:', linkFormat);
+                break;
+        } // end switch linkFormat
+        
     }
 
-    chrome.scripting.executeScript({ // Clipboard can only be run from a content script context
-    target: { tabId: tab.id },
-    func: (url, text) => {
-      const html = `<a href="${url}">${text}</a>`;
-      const type = "text/html";
-      const blob = new Blob([html], { type });
-      const clipboardItem = new ClipboardItem({ [type]: blob });
-
-      navigator.clipboard.write([clipboardItem]);
-    },
-    args: [url, text]
+    // Copy the link using clipboard API 
+    console.log('url:', url,'text:', text);
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (url, text) => {
+        const htmlLink = `<a href="${url}">${text}</a>`;
+        navigator.clipboard.write([
+            new ClipboardItem({
+            "text/html": new Blob([htmlLink], {type: "text/html"}),
+            "text/plain": new Blob([htmlLink], {type: "text/plain"}),
+            })
+        ]);
+        },
+        args: [url, text], // Pass url and title as arguments
     });
 
     chrome.scripting.executeScript({
@@ -117,13 +166,36 @@ export async function CopyLink(tab) {
 
 }
 
+// This function will be executed in the content script context
+function copyLinkToClipboard(url, text) {
+    // Create the HTML content
+    const html = `<a href="${url}">${text}</a>`;
+    
+    // For modern browsers supporting the Clipboard API with HTML content
+    const type = "text/html";
+    const blob = new Blob([html], { type });
+    const data = [new ClipboardItem({ [type]: blob })];
+    
+    navigator.clipboard.write(data)
+        .then(() => console.log("HTML content copied to clipboard"))
+        .catch(err => {
+            console.error("Failed to copy HTML content: ", err);
+            fallbackCopyMethod(url, text, html);
+        });
+    return true;
+   
+}
+
 async function getPageTitleFromPageId(pageId,url) {
     
     let rootUrl;
     if (!url) {
         rootUrl = extractRootUrl(url); // Extract the root URL from the provided URL
+        if (rootUrl.includes('atlassian.net')) {
+            rootUrl += '/wiki';
+        }
     } else {
-        rootUrl = await getObjectFromLocalStorage('rooturl'); // Retrieve the root URL from storage
+        rootUrl = await getObjectFromLocalStorage('rooturl'); // Retrieve the root URL from storage/ settings
     }
 
     const apiUrl = `${rootUrl}/rest/api/content/${pageId}`; // Construct the API URL
@@ -298,7 +370,7 @@ export function Query2Cql(searchStr, spacekey, type) {
     searchStr = searchStr.replace(/(\s|^)\-?l(\s|$)/,'');
     // 3. Clean-up Option -s for space key from settings or followed word
     searchStr = searchStr.replace(/(\s|^)\-?s$/,'');
-    searchStr = searchStr.replace(/(\s|^)\-?s\s([^\s]*)/);
+    searchStr = searchStr.replace(/(\s|^)\-?s\s([^\s]*)/,''); // bug fix 2025-07-30
 
     if (searchStr) { 
         CQL = CQL + ' AND siteSearch ~ "' + searchStr + '"';
@@ -452,3 +524,255 @@ function extractRootUrl(url) {
         throw new Error(`Invalid URL: ${url}`);
     }
 }
+
+/**
+ * Displays a dialog for the user to select a link display mode
+ * @param {Object} tab - The current browser tab
+ * @returns {Promise<string|null>} - The selected display mode or null if canceled
+ */
+/**
+ * Displays a dialog for the user to select a link display mode
+ * @param {Object} tab - The current browser tab
+ * @returns {Promise<string|null>} - The selected display mode or null if canceled
+ */
+async function selectlinkFormat(tab) {
+    return new Promise((resolve) => {
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+                return new Promise((dialogResolve) => {
+                    // Create the dialog container
+                    const dialog = document.createElement('div');
+                    dialog.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        z-index: 10000;
+                        font-family: Arial, sans-serif;
+                        width: 400px;
+                    `;
+                    
+                    // Create the dialog content
+                    dialog.innerHTML = `
+                        <h3 style="margin-top: 0; color: #172B4D;">Link Display Format</h3>
+                        <p style="color: #505F79;">Choose how to display the link text:</p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button id="full-btn" style="padding: 8px; cursor: pointer; background: #F4F5F7; border: 1px solid #DFE1E6; border-radius: 3px;">
+                                <strong>Full</strong> - Page Title - Space Name - Confluence Name                            </button>
+                            <button id="middle-btn" style="padding: 8px; cursor: pointer; background: #F4F5F7; border: 1px solid #DFE1E6; border-radius: 3px;">
+                                <strong>Middle</strong> - Page Title - Space Name
+                            </button>
+                            <button id="short-btn" style="padding: 8px; cursor: pointer; background: #F4F5F7; border: 1px solid #DFE1E6; border-radius: 3px;">
+                                <strong>Short</strong> - Page title only
+                            </button>
+                            <button id="breadcrumb-btn" style="padding: 8px; cursor: pointer; background: #F4F5F7; border: 1px solid #DFE1E6; border-radius: 3px;">
+                                <strong>Breadcrumb</strong> - Path format
+                            </button>
+                        </div>
+                        <div style="margin-top: 15px; text-align: right;">
+                            <button id="cancel-btn" style="padding: 6px 12px; cursor: pointer; background: #FFFFFF; border: 1px solid #DFE1E6; border-radius: 3px;">
+                                Cancel
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(dialog);
+                    
+                    // Create overlay
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0,0,0,0.5);
+                        z-index: 9999;
+                    `;
+                    document.body.appendChild(overlay);
+                    
+                    // Add hover effects to buttons
+                    const buttons = dialog.querySelectorAll('button');
+                    buttons.forEach(button => {
+                        button.addEventListener('mouseover', () => {
+                            button.style.background = button.id === 'cancel-btn' ? '#F4F5F7' : '#EBECF0';
+                        });
+                        button.addEventListener('mouseout', () => {
+                            button.style.background = button.id === 'cancel-btn' ? '#FFFFFF' : '#F4F5F7';
+                        });
+                    });
+                    
+                    // Add event listeners
+                    document.getElementById('full-btn').addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve('full');
+                    });
+                    
+                    document.getElementById('middle-btn').addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve('middle');
+                    });
+                    
+                    document.getElementById('short-btn').addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve('short');
+                    });
+                    
+                    document.getElementById('breadcrumb-btn').addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve('breadcrumb');
+                    });
+                    
+                    document.getElementById('cancel-btn').addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve(null);
+                    });
+                    
+                    // Close dialog when clicking on overlay
+                    overlay.addEventListener('click', () => {
+                        cleanup();
+                        dialogResolve(null);
+                    });
+                    
+                    // Helper function to clean up the dialog
+                    function cleanup() {
+                        dialog.remove();
+                        overlay.remove();
+                    }
+                    
+                    // Handle escape key to cancel
+                    document.addEventListener('keydown', function escHandler(e) {
+                        if (e.key === 'Escape') {
+                            document.removeEventListener('keydown', escHandler);
+                            cleanup();
+                            dialogResolve(null);
+                        }
+                    });
+                });
+            }
+        }, (results) => {
+            if (results && results[0] && results[0].result !== undefined) {
+                resolve(results[0].result);
+            } else {
+                // Default if something goes wrong
+                resolve(null);
+            }
+        });
+    });
+} // eofun selectlinkFormat
+
+
+/**
+ * Creates an HTML breadcrumb trail for a Confluence page
+ * @param {string} pageId - The ID of the Confluence page
+ * @param {string} [url] - Optional URL to help determine the root URL
+ * @returns {Promise<string>} - HTML string with the breadcrumb trail
+ */
+async function getHtmlBreadcrumb(pageId, url = null, sliceIdx=1) {
+    try {
+        // Get the root URL
+        let rootUrl;
+        if (url) {
+            rootUrl = extractRootUrl(url);
+            if (rootUrl.includes('atlassian.net')) {
+                rootUrl += '/wiki';
+            }
+        } else {
+            rootUrl = await getRootUrl();
+        }
+
+        // Fetch the page details
+        const apiUrl = `${rootUrl}/rest/api/content/${pageId}?expand=ancestors,space`;
+        const response = await fetch(apiUrl);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch page details for pageId ${pageId}: ${response.statusText}`);
+        }
+        
+        const pageData = await response.json();
+        
+        // Start building the breadcrumb
+        let breadcrumb = '';
+        
+        // Add space link
+        const spaceKey = pageData.space.key;
+        const spaceName = pageData.space.name;
+        let spaceUrl;
+        
+        if (rootUrl.includes('.atlassian.net')) { // Cloud
+            spaceUrl = `${rootUrl}/spaces/${spaceKey}`;
+        } else { // Server
+            spaceUrl = `${rootUrl}/display/${spaceKey}`;
+        }
+        
+        breadcrumb += `<a href="${spaceUrl}">${spaceName}</a>`;
+        
+        // Add ancestors
+        if (pageData.ancestors && pageData.ancestors.length > 0 && sliceIdx!= -1) {
+            const ancestorsToShow = pageData.ancestors.slice(sliceIdx+1); // always skip Home page, -2 only first parent 
+            
+            ancestorsToShow.forEach(ancestor => {
+                const ancestorTitle = shortenTitle(ancestor.title);
+                let ancestorUrl;
+                
+                if (rootUrl.includes('.atlassian.net')) { // Cloud
+                    ancestorUrl = `${rootUrl}/spaces/${spaceKey}/pages/${ancestor.id}`;
+                } else { // Server
+                    ancestorUrl = `${rootUrl}/pages/viewpage.action?pageId=${ancestor.id}`;
+                }
+                breadcrumb += ` &gt; <a href="${ancestorUrl}">${ancestorTitle}</a>`;
+            });
+        }
+        
+        // Add current page
+        const pageTitle = shortenTitle(pageData.title);
+        let pageUrl;
+        
+        if (rootUrl.includes('.atlassian.net')) { // Cloud
+            pageUrl = `${rootUrl}/spaces/${spaceKey}/pages/${pageId}`;
+        } else { // Server
+            pageUrl = `${rootUrl}/pages/viewpage.action?pageId=${pageId}`;
+        }
+        
+        breadcrumb += ` &gt; <a href="${pageUrl}">${pageTitle}</a>`;
+        
+        return breadcrumb;
+    } catch (error) {
+        console.error('Error generating breadcrumb:', error);
+        return `<span style="color: red;">Error generating breadcrumb: ${error.message}</span>`;
+    }
+} // eofun getHtmlBreadcrumb
+
+function shortenTitle(title, count =1, sep = ' - ') {
+    if (title.match(/ - (intern|public)$/)) { // exceptions for pages ending with 'intern' or 'public'
+        return title;
+    }
+    let lastDashIndex;
+    for (let i=0;i<count;i++) {
+        lastDashIndex = title.lastIndexOf(sep);
+        if (lastDashIndex !== -1) {
+            title= title.substring(0, lastDashIndex);
+        }
+    }
+    return title;
+} // eofun shortenTitle 
+
+function Clip(tab,html,plain) {
+chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: (html, plain) => {
+    navigator.clipboard.write([
+        new ClipboardItem({
+        "text/html": new Blob([html], {type: "text/html"}),
+        "text/plain": new Blob([plain], {type: "text/plain"}),
+        })
+    ]);
+    },
+    args: [html, plain]
+});
+} // eofun Clip

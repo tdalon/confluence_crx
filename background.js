@@ -4,9 +4,6 @@ import {getSearchUrl, getObjectFromLocalStorage, getSingleSpaceKey, CopyLink} fr
 // Commands
 chrome.commands.onCommand.addListener(function (command) {
 switch (command) {
-	case "share2teams": 
-		//Share2Teams();
-		return;
 	case "copy_link": 
 		chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
 			await CopyLink(tabs[0]);
@@ -55,8 +52,8 @@ async function updateContextMenus() {
     // Construct the documentUrlPatterns dynamically based on the RootUrl
 	//"documentUrlPatterns": ["https://*.atlassian.net/wiki/*/edit-v2/*","https://*.atlassian.net/wiki/*/edit/*" ]
     const pageEditUrlPatterns = [
-        `${rootUrl}/*/edit-v2/*`, // Cloud
-        `${rootUrl}/*/edit/*`,
+        `https://*.atlassian.net/wiki/*/edit-v2/*`, // Cloud
+        `https://*.atlassian.net/wiki/*/edit/*`,
 		`${rootUrl}/pages/resumedraft.action` // server/DC
     ];
 
@@ -65,12 +62,19 @@ async function updateContextMenus() {
 		`${rootUrl}/display/*`
     ];
 
-	chrome.contextMenus.create({
-        id: "copy_link",
-        title: "Copy Link",
-        contexts: ["page", "frame", "selection", "link", "editable","action"],
-		documentUrlPatterns: pageViewUrlPatterns
-    });
+ chrome.contextMenus.create({
+     id: "copy_link",
+     title: "Copy Link",
+     contexts: ["page", "frame", "selection", "link", "editable","action"],
+     documentUrlPatterns: pageViewUrlPatterns
+ });
+ 
+ chrome.contextMenus.create({
+     id: "copy_breadcrumb_link",
+     title: "Copy Breadcrumb",
+     contexts: ["page", "frame", "action"],
+     documentUrlPatterns: pageViewUrlPatterns
+ });
 
     // Create context menus with the dynamically generated documentUrlPatterns
     chrome.contextMenus.create({
@@ -106,8 +110,6 @@ async function updateContextMenus() {
         contexts: ["action"]
     });
 
-	
-
     console.log('Context menus updated with RootUrl:', rootUrl);
 }
 
@@ -124,46 +126,50 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 // Add Context Menu listener
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-	switch (info.menuItemId) {
-		case "crx_help": 
-			CrxHelp();
-			return;
-		case "crx_rn": 
-			CrxRn();
-			return;
-		case "crx_options":
-			if (chrome.runtime.openOptionsPage) {
-				chrome.runtime.openOptionsPage();
-			  } else {
-				window.open(chrome.runtime.getURL('options.html'));
-			  }
-			return;
-		case "numheading_add": 
-			chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {
-				chrome.scripting.executeScript({
-					target: { tabId: tabs[0].id },
-					files: ["jquery-3.7.1.min.js","numheading_add.js"]
-				});
-			})
-			return;
-		case "numheading_remove": 
-			chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {
-				chrome.scripting.executeScript({
-					target: { tabId: tabs[0].id },
-					files: ["jquery-3.7.1.min.js","numheading_remove.js"]
-				});
-			})
-			return;
-		case "copy_link": 
-		    chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
-				await CopyLink(tabs[0]);
-			});
-			return;
-		default:
-			return
-					 
-	} // end switch
-
+    switch (info.menuItemId) {
+        case "crx_help": 
+            CrxHelp();
+            return;
+        case "crx_rn": 
+            CrxRn();
+            return;
+        case "crx_options":
+            if (chrome.runtime.openOptionsPage) {
+                chrome.runtime.openOptionsPage();
+              } else {
+                window.open(chrome.runtime.getURL('options.html'));
+              }
+            return;
+        case "numheading_add": 
+            chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    files: ["jquery-3.7.1.min.js","numheading_add.js"]
+                });
+            })
+            return;
+        case "numheading_remove": 
+            chrome.tabs.query({active: true,currentWindow: true}, function(tabs) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    files: ["jquery-3.7.1.min.js","numheading_remove.js"]
+                });
+            })
+            return;
+        case "copy_link": 
+            chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+                await CopyLink(tabs[0]);
+            });
+            return;
+        case "copy_breadcrumb_link": 
+            chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
+                await CopyLink(tabs[0], 'breadcrumb');
+            });
+            return;
+        default:
+            return
+                     
+    } // end switch
 });
 
 	
