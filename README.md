@@ -1,19 +1,32 @@
 - [About](#about)
+- [How to support the developer or show appreciation](#how-to-support-the-developer-or-show-appreciation)
 - [Options](#options)
   - [rooturl](#rooturl)
-  - [Space Key](#space-key)
+  - [Space Key(s)](#space-keys)
+  - [Default Space](#default-space)
   - [Limit](#limit)
+  - [Advanced Search](#advanced-search)
+  - [Link Format](#link-format)
+  - [Breadcrumb Start Level](#breadcrumb-start-level)
 - [Search](#search)
+  - [Difference Cloud vs. Server/DataCenter](#difference-cloud-vs-serverdatacenter)
   - [Query parameter](#query-parameter)
     - [Quick Open](#quick-open)
+    - [Search Keywords](#search-keywords)
   - [Open results](#open-results)
+  - [Multiple Spaces](#multiple-spaces)
 - [Omnibox](#omnibox)
   - [Change the omnibox keyword](#change-the-omnibox-keyword)
-- [Extension Keyword](#extension-keyword)
+  - [Default Search used](#default-search-used)
+  - [Omnibox Keywords](#omnibox-keywords)
+    - [Quick Create Page](#quick-create-page)
+    - [Quick Navigate to Space](#quick-navigate-to-space)
+- [Extension Keyboard Shortcuts](#extension-keyboard-shortcuts)
+- [Extension Action Context Menu](#extension-action-context-menu)
 - [Context Menu](#context-menu)
   - [Numbering Headings](#numbering-headings)
+  - [Copy Link](#copy-link)
 - [How to submit an issue](#how-to-submit-an-issue)
-- [How to support the developer or show appreciation](#how-to-support-the-developer-or-show-appreciation)
 
 
 # About
@@ -38,6 +51,12 @@ Extension Overview:
   </a>
 </p>
 
+
+# How to support the developer or show appreciation
+
+This extension is free and open source.
+You can show your appreciation by [Buying me a coffee](https://www.buymeacoffee.com/tdalon).
+I love getting nice Reviews of the Chrome Extension in the Chrome WebStore. It is only one-click and a few words.
 
 # Options
 
@@ -229,7 +248,4 @@ See separate blog post [here](https://tdalon.blogspot.com/2021/04/confluence-sha
 
 You can submit an issue to report a bug or make a feature request using the [GitHub issues](https://github.com/tdalon/confluence_crx/issues) in the repository.
 
-# How to support the developer or show appreciation
 
-This extension is free and open source.
-You can show your appreciation by [Buying me a coffee](https://www.buymeacoffee.com/tdalon).

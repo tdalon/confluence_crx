@@ -426,7 +426,7 @@ export async function getLastAccessedSpaceKey() {
                 const spaceKey = await getSpaceKeyFromUrl(url.href);
                 resolve(spaceKey); // Return the space key
             } catch (error) {
-                console.error('Error fetching last selected Confluence space key:', error);
+                console.error('Error getting last selected Confluence space key:', error);
                 reject(error);
             }
         });

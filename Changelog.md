@@ -1,10 +1,32 @@
 # Confluence Chrome Extension - Changelog
 
+- [Confluence Chrome Extension - Changelog](#confluence-chrome-extension---changelog)
+  - [TODO](#todo)
+  - [2025-08-07 (v1.4)](#2025-08-07-v14)
+  - [2025-08-03 (v1.3)](#2025-08-03-v13)
+  - [2025-07 (v1.2)](#2025-07-v12)
+  - [2024-09](#2024-09)
+  - [2024-03-15](#2024-03-15)
+  - [2024-03-14](#2024-03-14)
+  - [2024-03-13](#2024-03-13)
+  - [2024-03-12](#2024-03-12)
+
 
 ## TODO
 * Add quick sort options (created by me, last updated by me, sort by last updated)
 
+
+
+## 2025-08-07 (v1.4)
+
+* New: Extension Hotkey for Open Search in new tab
+* Default Hotkeys: Global:true is useless; Chrome window can not be put to the front
+* Better Error handling if not logged in / no connection
+* Fix: if not logged in, search return 0 result instead of error notification
+* Changed Display Search Results Count with startIndex - endIndex instead of Count for better clarity
+
 ## 2025-08-03 (v1.3)
+
 * Fix: if only subdomain is entered in rooturl, autocomplete with .atlassian.net
 * Options Hotkeys: Esc to close and Ctrl+S to save and close
 * Copy Link Breadcrumb Format
@@ -13,6 +35,7 @@
 * README improved
 
 ## 2025-07 (v1.2)
+
 * Fix: omnibox search with #label
 * Option to pass space key as argument in the query
 * Keyword to quick navigate to space
@@ -29,13 +52,16 @@
 * In case of search in multi-spaces, display space in search results
 
 ## 2024-09
+
 * Support for server-based version preparation: Change subdomain to rooturl
 
 ## 2024-03-15
+
 * Rename files popout.* to search.*
 * Fix: search. If number of results lower than limit TAB does not highlight first result (Next not visible)
 
 ## 2024-03-14
+
 * Quick Open Option i.e. Open first result (keyword -o or o)
 * Fix: Remove Context menus in Extension Action menu.
 * Added context menus for Help, Options and Release Notes to extension action menu
@@ -46,9 +72,11 @@
 * Error handling if not signed-in
 
 ## 2024-03-13
+
 * * Omnibar: open in new tab search results
 
 ## 2024-03-12
+
 * First Release implementing Quick Search in popup
 * Context Menu: Number Headings
 * Support for multiple Spaces comma separated list of space keys

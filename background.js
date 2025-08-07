@@ -19,8 +19,11 @@ switch (command) {
 			// left: 100  Optional: Position the popup
 		});
 		return;
-        default:
-            console.log(`Unknown command: ${command}`);			
+    case "open_search": // Open search in a new tab/ full window (not popup)
+        chrome.tabs.create({ url: chrome.runtime.getURL("search.html") });
+        return;
+    default:
+        console.log(`Unknown command: ${command}`);			
 } // end switch
 
 }); // end command.addListener

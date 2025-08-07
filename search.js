@@ -1,7 +1,7 @@
 
 import {Query2Cql, getSpaceKeyFromUrl, getSearchUrl, getSpaceKey} from './shared.js';
 
-let g_SearchResponse;
+let g_SearchResponse; // global variable
 
 // Store the state of Ctrl and Shift keys for advanced Search switch https://www.perplexity.ai/search/in-my-chrome-extension-i-have-M_y8SHhqQ6KNjgPviHNC3g
 let isCtrlPressed = false;
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('results_prev').style.display = "none";
 
 });
-
+// code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
 function nextResults() {
     var u = g_SearchResponse._links.base + g_SearchResponse._links.next;
     showResults(u);
@@ -151,7 +151,7 @@ function prevResults() {
 
 async function showResults(u) {
     
-     const rootUrl = await getObjectFromLocalStorage('rooturl');
+    const rootUrl = await getObjectFromLocalStorage('rooturl');
     if (!u) {
         u = await getApiSearchUrl(rootUrl);
     }
@@ -163,14 +163,114 @@ async function showResults(u) {
     
 
     // Use fetch 
-    g_SearchResponse = await fetch(u).then(res => res.json());
+    const response = await fetch(u);
+    g_SearchResponse = await response.json();
+    
+    // First check HTTP status from the response object
+    if (response.status === 401 || response.status === 403) {
+        const statusText = response.status === 401 ? "Unauthorized" : "Forbidden";
+        
+        // Create a more informative error message in the results area
+        resultsElt.innerHTML = `
+            <div class="error-container">
+                <h3>Authentication Error (${response.status} ${statusText})</h3>
+                <p>You need to be logged in to Confluence to perform this search.</p>
+                <p>Please <a href="${rootUrl}" target="_blank">log in to Confluence</a> and try again.</p>
+            </div>
+        `;
+        
+        // Update the results message
+        document.getElementById('results_msg').textContent = `Authentication error: ${statusText}`;
+        
+        // Hide navigation buttons
+        document.getElementById('results_next').style.display = "none";
+        document.getElementById('results_prev').style.display = "none";
+        
+        return;
+    }
+            
+    
+    // Handle other HTTP error status codes
+    if (response.status >= 400) {
+        resultsElt.innerHTML = `
+            <div class="error-container">
+                <h3>Server Error (${response.status})</h3>
+                <p>The Confluence server returned an error.</p>
+                <p class="error-details">Error message: ${g_SearchResponse.message || response.statusText}</p>
+            </div>
+        `;
+        
+        document.getElementById('results_msg').textContent = `Server error: ${response.status}`;
+        document.getElementById('results_next').style.display = "none";
+        document.getElementById('results_prev').style.display = "none";
+        return;
+    }
+        
+        
+    if (g_SearchResponse && g_SearchResponse.results && g_SearchResponse.results.length === 0) {
+        document.getElementById('results_next').style.display = "none";
+        document.getElementById('results_prev').style.display = "none";
+           
+        
+        // Send a secondary request to /rest/api/user/current to check if log in issue
+        const userInfo = await fetch(rootUrl + '/rest/api/user/current');
+        const user = await userInfo.json();
+        
+        // Log user information for debugging
+        if (user.type === "anonymous" || !user.username) {
+            let loginUrl = rootUrl;
+            if (!rootUrl.includes('.atlassian.net')) { // Cloud
+               loginUrl = rootUrl + '/login.action';
+            }
+            resultsElt.innerHTML = `
+                <div class="error-container">
+                    <h3>Login Required</h3>
+                    <p>You need to be logged in to Confluence to perform this search.</p>
+                    <p>Please <a href="${loginUrl}" target="_blank">log in to Confluence</a> and try again.</p>
+                </div>
+            `;
+        
+            //document.getElementById('results_msg').textContent = 'Login required';
+            
+            // Show a notification for authentication issues
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'images/error-48.png',
+                title: 'Confluence CRX: Authentication Required',
+                message: 'Please log in to Confluence to perform searches.',
+                priority: 1
+            });
+        return;
+        } 
+        document.getElementById('results_msg').textContent = 'No result found!';
+        return
 
-    if (g_SearchResponse.statusCode === 403) {
-        alert('Error! Check that you are logged in!');
-        throw new Error(`${g_SearchResponse.message}`);
     }
 
-    // code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
+
+    // display response text in console log
+    //console.log('Response:', JSON.stringify(g_SearchResponse, null, 2));
+    
+    // Update the results message
+    document.getElementById('results_msg').textContent = '';
+    
+    // Display navigation buttons
+    if (g_SearchResponse._links.prev) {
+        document.getElementById('results_prev').style.display = "inline-block";
+    } else {
+        document.getElementById('results_prev').style.display = "none";
+    }
+    
+    if (g_SearchResponse._links.next) {
+        document.getElementById('results_next').style.display = "inline-block";
+    } else {
+        document.getElementById('results_next').style.display = "none";
+    }
+    
+    // Update the search query in the search bar
+  //  document.getElementById("confluenceSearchQuery").value = g_SearchResponse.query.value;
+    
+    // Clear previous search 
     
     if (g_SearchResponse.results.length === 1) { // quick open
         u = rootUrl + g_SearchResponse.results[0]._links.webui;
@@ -208,9 +308,28 @@ async function showResults(u) {
     resultsElt.appendChild(ul);
     
     var limit = await getObjectFromLocalStorage('limit');
-    document.getElementById('results_msg').textContent= g_SearchResponse.results.length + ' items found. (max.' + limit + ')';
+    
+    // Calculate the current range of results being displayed
+    let startItem = 1;
+    let endItem;
+    const totalItems = g_SearchResponse.totalSize ;
+    // Parse the current URL to extract the start parameter if it exists
+    const currentUrlStart = u.match(/[?&]start=(\d+)/);
+    if (currentUrlStart && currentUrlStart[1]) {
+        startItem = parseInt(currentUrlStart[1]) +1;
+    }
+    
+    // End item is start item plus the number of results on this page
+    endItem = startItem + g_SearchResponse.results.length -1;
+    
+    // Format the message
+    document.getElementById('results_msg').textContent = 
+        `${startItem}-${endItem} of ${totalItems} items:`;
+    
     
     document.getElementById('go-to-options').focus();
+    
+    // Handle navigation buttons visibility based on response links
     if (Object.hasOwn(g_SearchResponse._links,'prev')) {
         document.getElementById('results_prev').style.display = "block";
         document.getElementById('results_prev').title = 'Previous ' + limit.toString();
@@ -218,6 +337,7 @@ async function showResults(u) {
     } else {
         document.getElementById('results_prev').style.display = "none";
     }
+    
     if (Object.hasOwn(g_SearchResponse._links,'next')) {
         document.getElementById('results_next').style.display = "block";
         document.getElementById('results_next').title = 'Next ' + limit.toString();
