@@ -289,7 +289,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('results_next').style.display = "none";
     document.getElementById('results_prev').style.display = "none";
 });
-
 // code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
 function nextResults() {
     var u = g_SearchResponse._links.base + g_SearchResponse._links.next;
