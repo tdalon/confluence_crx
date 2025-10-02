@@ -26,13 +26,13 @@
             border: 1px solid #dfe1e6;
             border-radius: 3px;
         }
-         .form-inline input {
-        width: 70%;
-        border: none;
-        outline: none;
-        font-size: 0.9em;
-        color: #172B4D;
-        background-color: #F4F5F7; /* Matching the input background with the body background */
+        .form-inline input {
+            width: 70%;
+            border: none;
+            outline: none;
+            font-size: 0.9em;
+            color: #172B4D;
+            background-color: #F4F5F7; /* Matching the input background with the body background */
         }
         .form-inline button {
             font-size: 0.9em;
@@ -43,34 +43,62 @@
             color: #ffffff;
             cursor: pointer;
         }
+        
+        /* Space status badge - updated to show space key directly */
+        .space-status {
+            display: inline-block;
+            background-color: #EBECF0;
+            color: #6B778C;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            margin-left: 5px;
+            white-space: nowrap;
+        }
+        
+        /* Space key within status badge */
+        .space-status .space-key-value {
+            font-weight: bold;
+            color: #172B4D;
+        }
+        
         .form-inline button.btn-secondary {
             background-color: #172B4D;
         }
         footer {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             padding: 5px;
             border-top: 1px solid #dfe1e6;
-            font-size: 0.8em;
+            font-size: 0.9em;
         }
         #spacekey {
-        width: 50%;
-        height: 20px;
-        padding: 2px;
-        border: 1px solid #dfe1e6;
-        border-radius: 3px;
-        font-size: 0.8em;
-        background-color: #F4F5F7; /* Matching the input background with the body background */
+            flex-grow: 1;
+            min-width: 120px;
+            height: 20px;
+            padding: 2px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background-color: #F4F5F7;
+            margin-right: 5px;
+        }
+        #spacekey.inactive {
+            color: #97A0AF;
+            background-color: #EBECF0;
+            border-color: #DFE1E6;
         }
         #go-to-options {
             padding: 5px 10px;
             margin-left: 5px;
-            font-size: 0.8em;
-            background-color: #0da4fc;
+            font-size: 0.9em; /* Match the size of the search button */
+            background-color: #0dd0fc;
+            color: #ffffff;
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            white-space: nowrap;
         }
         text {
             padding: 5px 10px;
@@ -87,15 +115,78 @@
         }
 
         .space-key {
-        color:#6c757d; /* Grey color */
-        /* font-weight: bold; Make it bold */
-        font-size: 0.8em; /* Slightly smaller font size */
-        margin-left: 5px;
-        font-style: italic;
+            color:#6c757d; /* Grey color */
+            /* font-weight: bold; Make it bold */
+            font-size: 0.8em; /* Slightly smaller font size */
+            margin-left: 5px;
+            font-style: italic;
         }
 
-</style>
-    
+        /* Space controls container */
+        .space-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Default space selector */
+        #defspace {
+            height: 20px;
+            padding: 0 2px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background-color: #F4F5F7;
+            margin-right: 5px;
+            width: 80px;
+        }
+
+        /* Space key input container */
+        .spacekey-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* error-container */
+        .error-container {
+            background-color: #FFEBE6;
+            border: 1px solid #FF8F73;
+            border-radius: 3px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #DE350B;
+        }
+        
+        .error-container h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+            color: #DE350B;
+        }
+        
+        .error-container p {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        
+        .error-container a {
+            color: #0052CC;
+            text-decoration: none;
+        }
+        
+        .error-container a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-details {
+            font-family: monospace;
+            background-color: #F4F5F7;
+            padding: 5px;
+            border-radius: 3px;
+            margin-top: 10px;
+            word-break: break-word;
+        }
+    </style>
 </head>
 <body>
     <h1 id="title">Search Confluence</h1>
@@ -104,16 +195,27 @@
         <button type="submit" class="btn btn-primary" title="Hold Ctrl or Shift and click to open Confluence advanced search.">Search</button>
     </form>
     <footer>
-        <img id="popout" src="images/popout-16.png" style="cursor:pointer;">
-        <img id="help" src="images/help.png" style="cursor:pointer;">
+        <div class="left-controls">
+            <img id="popout" src="images/popout-16.png" style="cursor:pointer;" title="Open in new window">
+            <img id="help" src="images/help.png" style="cursor:pointer;" title="Help">
+        </div>
         
-        <input type="text" id="spacekey" placeholder="SpaceKey">
-        <div id="status_msg"></div>
-        <button id="go-to-options">Options</button>
+        <div class="space-controls">
+            <select id="defspace" title="Default space search mode">
+                <option value="s">settings</option>
+                <option value="l">last accessed</option>
+                <option value="g">global</option>
+            </select>
+            <input type="text" id="spacekey" placeholder="SpaceKey">
+            <span id="space-status" class="space-status" style="display:none;"></span>
+            <div id="status_msg"></div>
+        </div>
+        
+        <button id="go-to-options" class="btn btn-primary">Options</button>
     </footer>    
     <table>
         <tr>
-            <td><div id="results_msg" ></div></td>
+            <td><div id="results_msg"></div></td>
             <td><img id="results_prev" src="images/prev-8.png" tabindex=0 style="cursor:pointer;"></td>
             <td><img id="results_next" src="images/next-8.png" tabindex=0 style="cursor:pointer;"></td>
         </tr>

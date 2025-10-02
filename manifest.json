@@ -5,9 +5,9 @@
    "author":"Thierry Dalon",
    "host_permissions": [ "https://*.atlassian.net/wiki/" ],
    "optional_host_permissions": ["https://*/*"],
-   "version": "1.3",
+   "version": "1.4.1",
    "manifest_version": 3, 
-   "permissions": ["storage","contextMenus","scripting","activeTab","notifications","clipboardWrite"],
+   "permissions": ["storage","contextMenus","scripting","activeTab","notifications","clipboardWrite","commands"],
    "background": {
       "service_worker": "background.js",
       "type": "module"
@@ -28,13 +28,21 @@
     },
    "commands": {
       "open_popup": {
-         "description": "Open Confluence Quick Search",
-         "global": true,
+         "description": "Open Confluence Quick Search (Popup)",
          "suggested_key": {
             "chromeos": "Ctrl+Shift+K",
             "linux": "Ctrl+Shift+K",
             "mac": "Command+Shift+K",
             "windows": "Ctrl+Shift+K"
+         }
+      },
+      "open_search": {
+         "description": "Open Confluence Quick Search (New Tab)",
+         "suggested_key": {
+            "chromeos": "Alt+S",
+            "linux": "Alt+S",
+            "mac": "Alt+S",
+            "windows": "Alt+S"
          }
       },
       "copy_link": {
