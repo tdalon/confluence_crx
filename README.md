@@ -1,24 +1,16 @@
 - [About](#about)
-<<<<<<< Updated upstream
-- [How to support the developer or show appreciation](#how-to-support-the-developer-or-show-appreciation)
-=======
   - [How to support the developer](#how-to-support-the-developer)
   - [How to submit an issue](#how-to-submit-an-issue)
 - [Extension Button](#extension-button)
   - [Single click on icon](#single-click-on-icon)
   - [Extension Context Menu](#extension-context-menu)
 - [Extension Keyboard Shortcuts](#extension-keyboard-shortcuts)
->>>>>>> Stashed changes
 - [Options](#options)
   - [rooturl](#rooturl)
   - [Space Key(s)](#space-keys)
   - [Default Space](#default-space)
   - [Limit](#limit)
-<<<<<<< Updated upstream
-  - [Advanced Search](#advanced-search)
-=======
   - [Omnibox Search Type](#omnibox-search-type)
->>>>>>> Stashed changes
   - [Link Format](#link-format)
   - [Breadcrumb Start Level](#breadcrumb-start-level)
 - [Search](#search)
@@ -35,20 +27,11 @@
   - [Omnibox Keywords](#omnibox-keywords)
     - [Quick Create Page](#quick-create-page)
     - [Quick Navigate to Space](#quick-navigate-to-space)
-<<<<<<< Updated upstream
-- [Extension Keyboard Shortcuts](#extension-keyboard-shortcuts)
-- [Extension Action Context Menu](#extension-action-context-menu)
-- [Context Menu](#context-menu)
-  - [Numbering Headings](#numbering-headings)
-  - [Copy Link](#copy-link)
-- [How to submit an issue](#how-to-submit-an-issue)
-=======
 - [Snippets](#snippets)
 - [Label Dictionary](#label-dictionary)
 - [Context Menu](#context-menu)
   - [Numbering Headings](#numbering-headings)
   - [Copy Link](#copy-link)
->>>>>>> Stashed changes
 
 
 # About
@@ -111,12 +94,6 @@ In the [extensions keyboard shortcuts page](chrome://extensions/shortcuts), you 
 - [copy a link](#copy-link)
 - toggle the ToC
 - insert snippet
-
-# How to support the developer or show appreciation
-
-This extension is free and open source.
-You can show your appreciation by [Buying me a coffee](https://www.buymeacoffee.com/tdalon).
-I love getting nice Reviews of the Chrome Extension in the Chrome WebStore. It is only one-click and a few words.
 
 # Options
 
@@ -217,11 +194,7 @@ If you use the keyword 'o' or ' -o' in the query to open the first match directl
 | **Keyword** | **Meaning**                                                                 |
 |-------------|-----------------------------------------------------------------------------|
 | `#`         | Prefix for labels. Searches by labels with an AND combination.              |
-<<<<<<< Updated upstream
-| `-s` or `s` | Search in space(s) with key defined in the Options                          |
-=======
 | `-s` or `s` | Search in space(s) with key defined in the Options/ Settings                          |
->>>>>>> Stashed changes
 | `-g` or `g` | Global search (all spaces)                                                  |
 | `-l` or `l` | Search in last accessed space                                               |
 
@@ -318,11 +291,3 @@ N.B.: The copy link feature does not work if the address bar is selected due to 
 
 See separate blog post [here](https://tdalon.blogspot.com/2021/04/confluence-share-link.html) regarding motivation and implementation.
 
-<<<<<<< Updated upstream
-# How to submit an issue
-
-You can submit an issue to report a bug or make a feature request using the [GitHub issues](https://github.com/tdalon/confluence_crx/issues) in the repository.
-
-
-=======
->>>>>>> Stashed changes

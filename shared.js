@@ -460,14 +460,10 @@ export async function getLastAccessedSpaceKey() {
                 const spaceKey = await getSpaceKeyFromUrl(url.href);
                 resolve(spaceKey); // Return the space key
             } catch (error) {
-<<<<<<< Updated upstream
-                console.error('Error getting last selected Confluence space key:', error);
-=======
                 console.error(
                     "Error getting last selected Confluence space key:",
                     error
                 );
->>>>>>> Stashed changes
                 reject(error);
             }
         });
@@ -514,18 +510,6 @@ export async function getSpaceKeyFromUrl(url) {
             }
         }
 
-<<<<<<< Updated upstream
-         // Case 2: URL of type /pages/viewpage.action?spaceKey=***&title=
-        const spaceKeyMatch = parsedUrl.search.match(/[?&]spaceKey=([^&]+)/);
-        if (spaceKeyMatch) {
-            const spaceKey = spaceKeyMatch[1];
-            console.log('Space key extracted from URL parameter:', spaceKey);
-            return spaceKey;
-        }
-        
-        // Case 3: URL contains `pageId`
-        const pageIdMatch = parsedUrl.search.match(/pageId=(\d+)/);
-=======
         // Case 2: URL of type /pages/viewpage.action?spaceKey=***&title=
         let spaceKeyMatch = url.match(/[?&]spaceKey=([^&]+)/);
         if (spaceKeyMatch) {
@@ -544,7 +528,6 @@ export async function getSpaceKeyFromUrl(url) {
 
         // Case 4: URL contains `pageId`
         const pageIdMatch = url.match(/pageId=(\d+)/);
->>>>>>> Stashed changes
         if (pageIdMatch) {
             const pageId = pageIdMatch[1];
             const apiUrl = `${rootUrl}/rest/api/content/${pageId}`; // Construct the API URL
@@ -565,7 +548,6 @@ export async function getSpaceKeyFromUrl(url) {
             const data = await response.json();
             return data.space.key; // Return the space key from the API response
         }
-       
 
         // If neither case matches, return null
         return null;

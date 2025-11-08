@@ -1,18 +1,4 @@
 {
-<<<<<<< Updated upstream
-   "name": "Confluence",
-   "description": "Chrome Extension for Confluence",
-   "short_name": "confluence",
-   "author":"Thierry Dalon",
-   "host_permissions": [ "https://*.atlassian.net/wiki/" ],
-   "optional_host_permissions": ["https://*/*"],
-   "version": "1.4.1",
-   "manifest_version": 3, 
-   "permissions": ["storage","contextMenus","scripting","activeTab","notifications","clipboardWrite","commands"],
-   "background": {
-      "service_worker": "background.js",
-      "type": "module"
-=======
     "name": "Confluence",
     "description": "Chrome Extension for Confluence",
     "short_name": "confluence",
@@ -33,7 +19,6 @@
     "background": {
         "service_worker": "background.js",
         "type": "module"
->>>>>>> Stashed changes
     },
     "action": {
         "default_icon": {
@@ -44,49 +29,6 @@
         },
         "default_popup": "search.html#popup"
     },
-<<<<<<< Updated upstream
-   "commands": {
-      "open_popup": {
-         "description": "Open Confluence Quick Search (Popup)",
-         "suggested_key": {
-            "chromeos": "Ctrl+Shift+K",
-            "linux": "Ctrl+Shift+K",
-            "mac": "Command+Shift+K",
-            "windows": "Ctrl+Shift+K"
-         }
-      },
-      "open_search": {
-         "description": "Open Confluence Quick Search (New Tab)",
-         "suggested_key": {
-            "chromeos": "Alt+S",
-            "linux": "Alt+S",
-            "mac": "Alt+S",
-            "windows": "Alt+S"
-         }
-      },
-      "copy_link": {
-         "description": "Copy Nice Page Link",
-         "suggested_key": {
-            "chromeos": "Ctrl+Shift+C",
-            "linux": "Ctrl+Shift+C",
-            "mac": "Command+Shift+C",
-            "windows": "Ctrl+Shift+C"
-         }
-      },
-      "copy_breadcrumb_link": {
-         "description": "Copy Breadcrumb Link"
-      }
-   },
-   "icons": {
-      "128": "images/icon-128.png",
-      "16": "images/icon-16.png",
-      "32": "images/icon-32.png",
-      "48": "images/icon-48.png"
-   },   
-   "omnibox": {
-      "keyword": "c"
-   }
-=======
     "options_page": "options.html",
     "options_ui": {
         "page": "options.html",
@@ -152,5 +94,4 @@
             "matches": ["<all_urls>"]
         }
     ]
->>>>>>> Stashed changes
 }

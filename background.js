@@ -8,30 +8,6 @@ import { getSnippets, getSnippet } from "./snippets.js";
 
 // Commands
 chrome.commands.onCommand.addListener(function (command) {
-<<<<<<< Updated upstream
-switch (command) {
-	case "copy_link": 
-		chrome.tabs.query({active: true, currentWindow: true}, async function(tabs) {
-			await CopyLink(tabs[0]);
-		});
-		return;
-	case "open_popup": // The command name defined in manifest.json
-		chrome.windows.create({
-			url: chrome.runtime.getURL("search.html#popup"), // Open the popup window
-			type: "popup",
-			width: 550, // Match the width of your popup
-			height: 800, // Adjust height as needed
-			//  top: 100, Optional: Position the popup
-			// left: 100  Optional: Position the popup
-		});
-		return;
-    case "open_search": // Open search in a new tab/ full window (not popup)
-        chrome.tabs.create({ url: chrome.runtime.getURL("search.html") });
-        return;
-    default:
-        console.log(`Unknown command: ${command}`);			
-} // end switch
-=======
     switch (command) {
         case "copy_link":
             chrome.tabs.query(
@@ -54,7 +30,6 @@ switch (command) {
         case "open_search": // Open search in a new tab/ full window (not popup)
             chrome.tabs.create({ url: chrome.runtime.getURL("search.html") });
             return;
->>>>>>> Stashed changes
 
         case "toc_toggle":
             chrome.tabs.query(

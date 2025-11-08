@@ -292,10 +292,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('results_next').style.display = "none";
     document.getElementById('results_prev').style.display = "none";
 });
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 // code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
 function nextResults() {
     var u = g_SearchResponse._links.base + g_SearchResponse._links.next;
@@ -315,10 +312,7 @@ async function showResults(u) {
        // u += (u.includes('?') ? '&' : '?') + 'start=0'; // enforce default page is first page (changed with 9.x)
     }
     
-<<<<<<< Updated upstream
-=======
     console.log('Fetching results from: '+ u);
->>>>>>> Stashed changes
     const resultsElt = document.getElementById('results');
     // clear previous results
     resultsElt.innerHTML = '';
@@ -353,24 +347,17 @@ async function showResults(u) {
     
     // Handle other HTTP error status codes
     if (response.status >= 400) {
-<<<<<<< Updated upstream
-=======
         let errorMsg = `${g_SearchResponse.message || response.statusText}`;
 
->>>>>>> Stashed changes
         resultsElt.innerHTML = `
             <div class="error-container">
                 <h3>Server Error (${response.status})</h3>
                 <p>The Confluence server returned an error.</p>
-<<<<<<< Updated upstream
-                <p class="error-details">Error message: ${g_SearchResponse.message || response.statusText}</p>
-=======
                 ${
                     errorMsg
                         ? `<p class="error-details">Error message: ${errorMsg}</p>`
                         : '<p class="error-details">Check if the space keys used exist.</p>'
                 }
->>>>>>> Stashed changes
             </div>
         `;
         
@@ -548,17 +535,9 @@ async function getApiSearchUrl(rootUrl) {
     } else {
         limit = await getObjectFromLocalStorage('limit');
     }
-<<<<<<< Updated upstream
-    let cql = Query2Cql(searchQuery, spacekey, type);
-=======
     let cql = await Query2Cql(searchQuery, spacekey, type);
     console.log("cql:" + cql);
->>>>>>> Stashed changes
     let searchUrl = rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
     console.log("searchUrl:" + searchUrl);
     return searchUrl;
-<<<<<<< Updated upstream
 } // eofun getApiSearchUrl
-=======
-} // eofun getApiSearchUrl
->>>>>>> Stashed changes
