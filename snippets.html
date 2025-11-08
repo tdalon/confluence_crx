@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Confluence CRX - Snippets</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f4f5f7;
+                color: #172b4d;
+            }
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background-color: white;
+                border-radius: 3px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+                padding: 20px;
+            }
+            h1 {
+                margin-top: 0;
+                color: #172b4d;
+                border-bottom: 1px solid #dfe1e6;
+                padding-bottom: 10px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+            }
+            input[type="text"],
+            textarea {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #dfe1e6;
+                border-radius: 3px;
+                box-sizing: border-box;
+            }
+            textarea {
+                min-height: 120px;
+                font-family: monospace;
+                resize: vertical;
+            }
+            button {
+                padding: 8px 16px;
+                background-color: #0052cc;
+                color: white;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                margin-right: 10px;
+            }
+            button:hover {
+                background-color: #0065ff;
+            }
+            button.secondary {
+                background-color: #f4f5f7;
+                color: #172b4d;
+                border: 1px solid #dfe1e6;
+            }
+            button.secondary:hover {
+                background-color: #ebecf0;
+            }
+            button.danger {
+                background-color: #de350b;
+            }
+            button.danger:hover {
+                background-color: #ff5630;
+            }
+            .snippet-list {
+                margin-top: 30px;
+            }
+            .snippet-item {
+                padding: 15px;
+                border: 1px solid #dfe1e6;
+                border-radius: 3px;
+                margin-bottom: 10px;
+                background-color: #f4f5f7;
+            }
+            .snippet-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            .snippet-title {
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .snippet-actions {
+                display: flex;
+                gap: 5px;
+            }
+            .snippet-content {
+                background-color: white;
+                padding: 10px;
+                border: 1px solid #dfe1e6;
+                border-radius: 3px;
+                font-family: monospace;
+                white-space: pre-wrap;
+                font-size: 12px;
+                color: #6b778c;
+            }
+            .variable {
+                color: #0052cc;
+                font-weight: bold;
+            }
+            .help-text {
+                font-size: 14px;
+                color: #6b778c;
+                margin-top: 5px;
+            }
+            .notification {
+                padding: 10px 15px;
+                margin-bottom: 15px;
+                border-radius: 3px;
+                display: none;
+            }
+            .notification.success {
+                background-color: #e3fcef;
+                color: #006644;
+                border-left: 4px solid #00875a;
+            }
+            .notification.error {
+                background-color: #ffebe6;
+                color: #bf2600;
+                border-left: 4px solid #bf2600;
+            }
+            .format-badge {
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-weight: normal;
+                margin-left: 8px;
+            }
+            .format-badge.html {
+                background-color: #e3fcef;
+                color: #006644;
+            }
+            .format-indicator {
+                display: inline-block;
+                padding: 2px 8px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: bold;
+                margin-left: 10px;
+            }
+
+            /* Add styles for the import/export section */
+            .backup-section {
+                margin-top: 30px;
+                padding: 15px;
+                background-color: #f4f5f7;
+                border-radius: 3px;
+                border: 1px solid #dfe1e6;
+            }
+
+            .backup-section h2 {
+                margin-top: 0;
+                font-size: 16px;
+                color: #172b4d;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            /* Styles for snippet content in list view */
+            .snippet-variables {
+                margin-bottom: 8px;
+                color: #5e6c84;
+                font-size: 12px;
+            }
+            .variable {
+                display: inline-block;
+                padding: 1px 5px;
+                background-color: #deebff;
+                color: #0747a6;
+                border-radius: 3px;
+                font-family: monospace;
+                font-size: 11px;
+                margin: 2px 0;
+            }
+            .snippet-toc {
+                font-size: 12px;
+                color: #5e6c84;
+                margin-top: 8px;
+                line-height: 1.4;
+            }
+
+            /* Add style for the danger button with confirmation */
+            button.danger-with-confirm {
+                background-color: #de350b;
+                color: white;
+                border: none;
+            }
+
+            button.danger-with-confirm:hover {
+                background-color: #bf2600;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Manage Snippets</h1>
+            <div id="notification" class="notification"></div>
+            <div class="form-group">
+                <label for="snippet-name">Snippet Name:</label>
+                <input
+                    type="text"
+                    id="snippet-name"
+                    placeholder="Enter a name for your snippet"
+                />
+            </div>
+            <div class="form-group">
+                <label for="snippet-description">Description (optional):</label>
+                <input
+                    type="text"
+                    id="snippet-description"
+                    placeholder="Brief description of this snippet"
+                />
+            </div>
+            <div class="form-group">
+                <label for="snippet-text"
+                    >Snippet Content:
+                    <span
+                        class="format-indicator"
+                        style="background-color: #f4f5f7; color: #6b778c"
+                        >TEXT</span
+                    ></label
+                >
+                <textarea
+                    id="snippet-text"
+                    placeholder="Enter your snippet content. Use $varname$ syntax for variables."
+                ></textarea>
+                <p class="help-text">
+                    <strong>Tip:</strong> Copy content from Confluence pages to
+                    preserve formatting, or paste plain text for simple
+                    snippets. Use $varname$ syntax to define variables that will
+                    be prompted when inserting the snippet.
+                </p>
+            </div>
+            <div class="form-group">
+                <button id="add-snippet">Add Snippet</button>
+                <button id="clear-form" class="secondary">Clear Form</button>
+            </div>
+
+            <!-- Modified backup section with Delete All button -->
+            <div class="backup-section">
+                <h2>Backup & Restore</h2>
+                <div class="button-group">
+                    <button id="export-snippets" class="secondary">
+                        Export Snippets
+                    </button>
+                    <button id="import-snippets" class="secondary">
+                        Import Snippets
+                    </button>
+                    <button
+                        id="delete-all-snippets"
+                        class="danger-with-confirm"
+                    >
+                        Delete All
+                    </button>
+                </div>
+                <p class="help-text">
+                    Export your snippets to a file for backup or to share with
+                    others. Import previously exported snippets. Use Delete All
+                    to remove all snippets (with confirmation).
+                </p>
+            </div>
+
+            <div class="snippet-list" id="snippet-list">
+                <h2>Your Snippets</h2>
+                <div id="snippets-container">
+                    <p id="no-snippets">No snippets saved yet.</p>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="snippets-ui.js"></script>
+    </body>
+</html>

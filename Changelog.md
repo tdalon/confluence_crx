@@ -1,4 +1,20 @@
-# Confluence Chrome Extension - Changelog
+# Confluence CRX - Changelog
+
+- [Confluence CRX - Changelog](#confluence-crx---changelog)
+  - [TODO](#todo)
+  - [2025-11-06 (v2.1.2)](#2025-11-06-v212)
+  - [2025-11-04 (v2.1.1)](#2025-11-04-v211)
+  - [2025-11-03 (v2.1)](#2025-11-03-v21)
+  - [2025-10-30 (v2.0)](#2025-10-30-v20)
+  - [2025-10-02 (v1.4.1)](#2025-10-02-v141)
+  - [2025-08-07 (v1.4)](#2025-08-07-v14)
+  - [2025-08-03 (v1.3)](#2025-08-03-v13)
+  - [2025-07 (v1.2)](#2025-07-v12)
+  - [2024-09](#2024-09)
+  - [2024-03-15](#2024-03-15)
+  - [2024-03-14](#2024-03-14)
+  - [2024-03-13](#2024-03-13)
+  - [2024-03-12](#2024-03-12)
 
 - [Confluence Chrome Extension - Changelog](#confluence-chrome-extension---changelog)
   - [TODO](#todo)
@@ -16,6 +32,33 @@
 ## TODO
 * Add quick sort options (created by me, last updated by me, sort by last updated)
 
+<<<<<<< Updated upstream
+=======
+
+## 2025-11-06 (v2.1.2)
+* Small fix: error catching if input space key not found
+
+## 2025-11-04 (v2.1.1)
+* Bug fix: insert snippet multiple times
+
+## 2025-11-03 (v2.1)
+
+* Bug fix: remove label
+* Added: Delete All button in Snippet UI
+  
+## 2025-10-30 (v2.0)
+
+* Improved UI for options
+* New feature: Snippet functionality
+* New feature: Label dictionary
+* New feature: Table of Contents overlay with expandable levels 
+* Fix: Add and Remove Headings Numbers: support for Confluence Server/DataCenter (TinyMCE Editor)
+* Bug fix: blog&page type
+* Bug fix getSpaceKeyFromUrl for new url structure DC 9.x /spaces/$spaceKey/pages/$pageId
+* Bug fix. Extension Search will display second page instead of first when triggering the search from the search bar with the Enter key
+* Removed jquery dependency
+  
+>>>>>>> Stashed changes
 ## 2025-10-02 (v1.4.1)
 
 * Improved display of active space(s) in search window (added default space setting directly in search, grey-out space setting if inactive, display active space (last:spacekey, global) e.g. if overwritten by flag)
@@ -77,7 +120,11 @@
 
 ## 2024-03-13
 
+<<<<<<< Updated upstream
 * * Omnibar: open in new tab search results
+=======
+* Omnibar: open in new tab search results
+>>>>>>> Stashed changes
 
 ## 2024-03-12
 

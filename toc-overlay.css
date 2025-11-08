@@ -1,0 +1,212 @@
+.crx-toc-overlay {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    max-height: 70vh;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: none;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.crx-toc-overlay.visible {
+    display: block;
+}
+
+.crx-toc-overlay.draggable {
+    cursor: move;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.crx-toc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+    cursor: grab;
+    user-select: none;
+}
+
+.crx-toc-header.dragging {
+    cursor: grabbing;
+    background: #e4e6ea;
+}
+
+.crx-toc-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #172b4d;
+    pointer-events: none;
+}
+
+.crx-toc-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.crx-toc-level-controls {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+}
+
+.crx-toc-level-indicator {
+    margin: 0 8px;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+.crx-toc-level-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #42526e;
+}
+
+.crx-toc-level-btn:hover {
+    background-color: rgba(9, 30, 66, 0.08);
+}
+
+.crx-toc-expand-all {
+    margin-left: 4px;
+}
+
+.crx-toc-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #6b778c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.crx-toc-close:hover {
+    background: #e4e6ea;
+    color: #172b4d;
+}
+
+.crx-toc-align-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    color: #6b778c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.crx-toc-align-btn:hover {
+    background: #e4e6ea;
+    color: #172b4d;
+}
+
+.crx-toc-content {
+    padding: 8px 0;
+    max-height: calc(70vh - 60px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.crx-toc-item {
+    display: block;
+    color: #172b4d;
+    text-decoration: none;
+    line-height: 1.4;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 16px;
+    border-left: 3px solid transparent;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.crx-toc-item[data-level="1"] {
+    padding-left: 16px;
+    font-weight: 600;
+}
+
+.crx-toc-item[data-level="2"] {
+    padding-left: 32px;
+}
+
+.crx-toc-item[data-level="3"] {
+    padding-left: 48px;
+}
+
+.crx-toc-item[data-level="4"] {
+    padding-left: 64px;
+}
+
+.crx-toc-item[data-level="5"] {
+    padding-left: 80px;
+}
+
+.crx-toc-item[data-level="6"] {
+    padding-left: 96px;
+}
+
+.crx-toc-item:hover {
+    background-color: #f4f5f7;
+    text-decoration: none;
+}
+
+.crx-toc-item.active {
+    background-color: #e8f5fe;
+    border-left-color: #0052cc;
+}
+
+/* Ensure TOC stays visible and doesn't interfere with page content */
+body.crx-toc-active .crx-toc-overlay {
+    display: block !important;
+}
+
+/* Prevent text selection while dragging */
+.crx-toc-overlay.draggable * {
+    user-select: none;
+}
+
+/* Heading highlight animation */
+@keyframes crx-toc-highlight-animation {
+    0% { background-color: rgba(255, 255, 140, 0.7); }
+    100% { background-color: transparent; }
+}
+
+.crx-toc-highlight {
+    animation: crx-toc-highlight-animation 2s ease-out;
+}
+
+.crx-toc-overlay.crx-toc-left {
+    left: 20px;
+    right: auto;
+}
+
+.crx-toc-overlay.crx-toc-right {
+    right: 20px;
+    left: auto;
+}

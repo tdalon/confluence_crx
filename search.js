@@ -232,13 +232,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         prevResults();
     });
 
-    document.getElementById('results_next').addEventListener("keyup", function(e) {
+    document.getElementById('results_next').addEventListener("keydown", function(e) {
         if (e.key === 'Enter') {
             nextResults();
         }
     });
 
-    document.getElementById('results_prev').addEventListener("keyup", function(e) {
+    document.getElementById('results_prev').addEventListener("keydown", function(e) {
         if (e.key === 'Enter') {
             prevResults();
         }
@@ -246,10 +246,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     if (window.location.hash == '#popup') {
         document.getElementById("title").style.display = "none";
-        // make links in popout clickable
-        $('body').on('click', 'a', function(){
-            chrome.tabs.create({url: $(this).attr('href')});
-            return false;
+        // make links in popout clickable - CONVERTED FROM JQUERY
+        document.body.addEventListener('click', function(e) {
+            // Check if the clicked element is an anchor tag
+            if (e.target.tagName === 'A') {
+                chrome.tabs.create({url: e.target.href});
+                e.preventDefault();
+            }
         });
     } else {
         document.getElementById("popout").style.display = "none";
@@ -289,6 +292,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('results_next').style.display = "none";
     document.getElementById('results_prev').style.display = "none";
 });
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 // code inspiration https://www.florin-pop.com/blog/2019/06/vanilla-javascript-instant-search/
 function nextResults() {
     var u = g_SearchResponse._links.base + g_SearchResponse._links.next;
@@ -305,8 +312,13 @@ async function showResults(u) {
     const rootUrl = await getObjectFromLocalStorage('rooturl');
     if (!u) {
         u = await getApiSearchUrl(rootUrl);
+       // u += (u.includes('?') ? '&' : '?') + 'start=0'; // enforce default page is first page (changed with 9.x)
     }
     
+<<<<<<< Updated upstream
+=======
+    console.log('Fetching results from: '+ u);
+>>>>>>> Stashed changes
     const resultsElt = document.getElementById('results');
     // clear previous results
     resultsElt.innerHTML = '';
@@ -341,11 +353,24 @@ async function showResults(u) {
     
     // Handle other HTTP error status codes
     if (response.status >= 400) {
+<<<<<<< Updated upstream
+=======
+        let errorMsg = `${g_SearchResponse.message || response.statusText}`;
+
+>>>>>>> Stashed changes
         resultsElt.innerHTML = `
             <div class="error-container">
                 <h3>Server Error (${response.status})</h3>
                 <p>The Confluence server returned an error.</p>
+<<<<<<< Updated upstream
                 <p class="error-details">Error message: ${g_SearchResponse.message || response.statusText}</p>
+=======
+                ${
+                    errorMsg
+                        ? `<p class="error-details">Error message: ${errorMsg}</p>`
+                        : '<p class="error-details">Check if the space keys used exist.</p>'
+                }
+>>>>>>> Stashed changes
             </div>
         `;
         
@@ -442,6 +467,9 @@ async function showResults(u) {
         const result_title = document.createElement('h3');
         if (ismultispace) {
             const spaceKey = await getSpaceKeyFromUrl(rootUrl + result._links.webui);
+            if (spaceKey=== null) {
+                console.warn('Failed to get space key from URL:', rootUrl + result._links.webui);
+            }
             result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a><span class="space-key">' + spaceKey + '</span>';
         } else {
             result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a>';
@@ -512,6 +540,7 @@ async function getApiSearchUrl(rootUrl) {
     searchQuery = searchQuery.replace(/(\s|^)\-?l(\s|$)/,'');
      
     const type = await getObjectFromLocalStorage('type');
+    
     var limit;
     if (searchQuery.match(/(\s|^)\-?o(\s|$)/)) { // quick open
         searchQuery = searchQuery.replace(/(\s|^)\-?o(\s|$)/,'');
@@ -519,8 +548,17 @@ async function getApiSearchUrl(rootUrl) {
     } else {
         limit = await getObjectFromLocalStorage('limit');
     }
+<<<<<<< Updated upstream
     let cql = Query2Cql(searchQuery, spacekey, type);
+=======
+    let cql = await Query2Cql(searchQuery, spacekey, type);
+    console.log("cql:" + cql);
+>>>>>>> Stashed changes
     let searchUrl = rootUrl + '/rest/api/content/search?cql=' + cql + '&limit=' + limit.toString();
-    //alert(searchUrl);
+    console.log("searchUrl:" + searchUrl);
     return searchUrl;
+<<<<<<< Updated upstream
 } // eofun getApiSearchUrl
+=======
+} // eofun getApiSearchUrl
+>>>>>>> Stashed changes
