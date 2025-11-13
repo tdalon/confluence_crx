@@ -2,6 +2,7 @@
 
 - [Confluence CRX - Changelog](#confluence-crx---changelog)
   - [TODO](#todo)
+  - [2025-11-13 (v2.1.3)](#2025-11-13-v213)
   - [2025-11-06 (v2.1.2)](#2025-11-06-v212)
   - [2025-11-04 (v2.1.1)](#2025-11-04-v211)
   - [2025-11-03 (v2.1)](#2025-11-03-v21)
@@ -20,7 +21,10 @@
 ## TODO
 * Add quick sort options (created by me, last updated by me, sort by last updated)
 
-
+## 2025-11-13 (v2.1.3)
+* Improvement: if no snippets, insert snippet will open snippet manager
+* Bug fix: snippet context menus duplicate id -> removed menus / only snippet selector
+* Bug fix: edit HTML source in plain editor-> paste is marked as text format
 ## 2025-11-06 (v2.1.2)
 * Small fix: error catching if input space key not found
 

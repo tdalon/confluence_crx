@@ -3,71 +3,7 @@
  * @param {string} snippetText - The snippet text containing variables in $varname$ format
  * @returns {Promise<string>} - The processed snippet with variables replaced by user values
  */
-async function processSnippetVariables(snippetText) {
-    const variables = extractVariables(snippetText);
-    if (variables.length === 0) return snippetText;
-    
-    const values = await promptForVariables(variables);
-    if (values === null) return null;
-    
-    let processedText = snippetText;
-    
-    // For HTML content, we need to be careful with the replacement
-    const isHtml = /<[a-z][\s\S]*>/i.test(snippetText);
-    
-    if (isHtml) {
-        // For HTML content, use a DOM parser to safely replace variables
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = snippetText;
-        
-        // Process text nodes to replace variables
-        const textNodes = [];
-        const walker = document.createTreeWalker(
-            tempDiv,
-            NodeFilter.SHOW_TEXT,
-            null,
-            false
-        );
-        
-        let node;
-        while (node = walker.nextNode()) {
-            textNodes.push(node);
-        }
-        
-             textNodes.forEach(textNode => {
-            let content = textNode.nodeValue;
-            variables.forEach((variable, index) => {
-                const placeholder = `$${variable}$`;
-                const value = values[index] || '';
-                content = content.replace(new RegExp('\\$' + variable + '\\$', 'g'), value);
-            });
-            textNode.nodeValue = content;
-        });
-        
-        processedText = tempDiv.innerHTML;
-    } else {
-        // For plain text, simple string replacement is fine
-        variables.forEach((variable, index) => {
-            const value = values[index] || '';
-            processedText = processedText.replace(new RegExp('\\$' + variable + '\\$', 'g'), value);
-        });
-    }
-    
-    return processedText;
-}
 
-function extractVariables(text) {
-    const variablePattern = /\$([a-zA-Z_][a-zA-Z0-9_]*)\$/g;
-    const variables = [];
-    let match;
-    while ((match = variablePattern.exec(text)) !== null) {
-        const variable = match[1];
-        if (!variables.includes(variable)) {
-            variables.push(variable);
-        }
-    }
-    return variables;
-}
 
 async function promptForVariables(variables) {
     return new Promise((resolve) => {

@@ -222,39 +222,6 @@ async function updateContextMenus() {
         contexts: ["editable"],
     });
 
-    // Add snippet menus at the end
-    try {
-        const snippets = await getSnippets();
-        const snippetNames = Object.keys(snippets);
-
-        chrome.contextMenus.create({
-            id: "confluence-snippets",
-            title: "Insert Snippet",
-            contexts: ["editable"],
-        });
-
-        if (snippetNames.length === 0) {
-            chrome.contextMenus.create({
-                id: "no-snippets",
-                parentId: "confluence-snippets",
-                title: "No snippets available. Add snippets in extension options.",
-                contexts: ["editable"],
-                enabled: false,
-            });
-        } else {
-            snippetNames.forEach((name) => {
-                chrome.contextMenus.create({
-                    id: `snippet-${name}`,
-                    parentId: "confluence-snippets",
-                    title: name,
-                    contexts: ["editable"],
-                });
-            });
-        }
-    } catch (error) {
-        console.error("Error loading snippets for context menu:", error);
-    }
-
     console.log("Context menus updated with RootUrl:", rootUrl);
 } // end function updateContextMenus
 
@@ -398,8 +365,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 }
             }
         );
-
-        return true; // Keep the message channel open for the async response
+    } else if (message.action === "openSnippetManager") {
+        console.log("Opening snippet manager");
+        chrome.tabs.create({ url: chrome.runtime.getURL("snippets.html") });
+        sendResponse({ success: true });
+       
     } else if (message.action === "getSnippets") {
         getSnippets()
             .then((snippets) => {

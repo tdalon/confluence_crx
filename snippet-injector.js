@@ -70,7 +70,6 @@ async function processSnippetVariables(snippetText) {
 
     let processedText = snippetText;
 
-    // For plain text, simple string replacement is fine
     variables.forEach((variable, index) => {
         const value = values[index] || "";
         processedText = processedText.replace(

@@ -242,8 +242,8 @@ function enableRichPasting() {
     snippetTextInput.addEventListener("paste", (event) => {
         const clipboardData = event.clipboardData || window.clipboardData;
 
+        // Check if HTML content is available in clipboard
         if (clipboardData && clipboardData.types) {
-            // Check if HTML content is available in clipboard
             if (clipboardData.types.includes("text/html")) {
                 const htmlData = clipboardData.getData("text/html");
                 const textData = clipboardData.getData("text/plain");
@@ -265,6 +265,31 @@ function enableRichPasting() {
                     showHtmlPreview();
 
                     // Trigger input event to ensure any listeners are notified
+                    const inputEvent = new Event("input", { bubbles: true });
+                    snippetTextInput.dispatchEvent(inputEvent);
+
+                    return;
+                }
+            }
+
+            // Check if plain text content might actually be HTML
+            // This handles the case when HTML is copied from a plain text editor
+            const textData = clipboardData.getData("text/plain");
+            if (textData && textData.trim()) {
+                const trimmedText = textData.trim();
+                // Check if it starts with <html> tag (case insensitive)
+                if (isHtmlContent(trimmedText)) {
+                    event.preventDefault();
+
+                    // Store the text as HTML content
+                    snippetTextInput.value = textData;
+                    snippetTextInput.dataset.detectedFormat = "html";
+
+                    // Update UI to reflect HTML content
+                    updateFormatDisplay("html");
+                    showHtmlPreview();
+
+                    // Trigger input event
                     const inputEvent = new Event("input", { bubbles: true });
                     snippetTextInput.dispatchEvent(inputEvent);
 
@@ -345,6 +370,7 @@ function isRichContent(htmlData, textData) {
 }
 
 function isHtmlContent(content) {
+    return content.match(/^<html>/i);
     const htmlTagPattern = /<[^>]+>/;
     const htmlEntityPattern = /&[a-zA-Z0-9#]+;/;
     const htmlStructurePattern =

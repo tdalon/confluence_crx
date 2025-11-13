@@ -57,6 +57,23 @@ if (typeof window.snippetSelectorLoaded === "undefined") {
                     format: data.format || "text",
                 }));
 
+                // Check if there are no snippets and open the snippet manager
+                if (snippets.length === 0) {
+                    // Show notification
+                    chrome.runtime.sendMessage({
+                        action: "showNotification",
+                        title: "No snippets available",
+                        message:
+                            "Opening Snippet Manager to create your first snippet.",
+                    });
+
+                    // Open the snippet manager
+                    chrome.runtime.sendMessage({
+                        action: "openSnippetManager",
+                    });
+                    return;
+                }
+
                 // Check editor type EVERY time the selector is opened
                 const is_SourceEditor = isSourceEditor();
 
@@ -69,17 +86,6 @@ if (typeof window.snippetSelectorLoaded === "undefined") {
 
                 // Apply initial filtering
                 applyFilters();
-
-                if (snippets.length === 0) {
-                    // Show notification if no snippets are available
-                    chrome.runtime.sendMessage({
-                        action: "showNotification",
-                        title: "No snippets available",
-                        message:
-                            "Please add snippets in the Snippet Manager first.",
-                    });
-                    return;
-                }
 
                 // If overlay exists, properly clean it up before creating a new one
                 if (snippetOverlay) {

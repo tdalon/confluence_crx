@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     clearAllBtn.addEventListener("click", async function () {
         if (
             confirm(
-                "Are you sure you want to delete ALL label shortcuts? This cannot be undone."
+                "Are you sure you want to delete ALL label shortcuts? You might want to export your snippets before."
             )
         ) {
             const success = await clearAllLabels();

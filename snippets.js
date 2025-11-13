@@ -209,11 +209,6 @@ export async function deleteSnippet(name) {
             await chrome.storage.sync.remove(chunkKey);
         }
 
-        // Update context menus if needed
-        if (chrome.runtime && chrome.runtime.sendMessage) {
-            chrome.runtime.sendMessage({ action: "updateSnippetMenus" });
-        }
-
         return true;
     } catch (error) {
         console.error(`Error deleting snippet "${name}":`, error);
@@ -238,11 +233,6 @@ export async function clearAllSnippets() {
         // Remove all snippet-related keys
         if (keysToRemove.length > 0) {
             await chrome.storage.sync.remove(keysToRemove);
-        }
-
-        // Update context menus if needed
-        if (chrome.runtime && chrome.runtime.sendMessage) {
-            chrome.runtime.sendMessage({ action: "updateSnippetMenus" });
         }
 
         console.log("All snippets have been cleared from storage");

@@ -40,9 +40,11 @@ Snippets support various content types:
 
 ##### Variable Support
 Snippets can include variables that prompt for input during insertion:
-- Use `$variablename syntax to define variables
+- Use `$variablename$` syntax to define variables
 - Variables will prompt for values when the snippet is inserted
 - Useful for templates with dynamic content like names, dates, or project-specific information or properties of macros (e.g. labels)
+
+N.B.: do not not use special characters that need to be escaped in regex in variable names e.g. -.
 
 ### Editing Snippets
 1. In the Snippet Manager, find the snippet you want to edit
@@ -62,15 +64,15 @@ You will be asked for confirmation.
 
 It is recommended to make a backup by exporting before deleting.
 
-## Accessing Snippets
+## Inserting Snippets
 
 You can access snippets in several ways:
 
 ### Context Menu (Right-click)
 When editing a Confluence page:
 1. Right-click in any editable area
-2. Select "Insert Snippet" from the context menu
-3. Choose your desired snippet from the submenu
+2. Select "Snippet Selector" from the context menu
+
 
 ### Quick Insert Snippet with Keyboard Shortcut
 This is the much recommended way for quick inserting a snippet.
@@ -123,7 +125,7 @@ You can import snippets from exported files:
    - **Ask for Each**: Decide individually for each conflicting snippet
    - **Cancel**: Abort the import process
 
-**Import features:**
+**Import features**
 - Validates file format before importing
 - Detects and handles naming conflicts
 - Shows import summary (imported count, skipped count)
