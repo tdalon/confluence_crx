@@ -8,8 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             padding: 15px;
-            /* width: 350px; */
-            width: 450px;
+            width: 550px;
             background-color: #F4F5F7;
             color: #172B4D;
         }
@@ -26,13 +25,13 @@
             border: 1px solid #dfe1e6;
             border-radius: 3px;
         }
-         .form-inline input {
-        width: 70%;
-        border: none;
-        outline: none;
-        font-size: 0.9em;
-        color: #172B4D;
-        background-color: #F4F5F7; /* Matching the input background with the body background */
+        .form-inline input {
+            width: 70%;
+            border: none;
+            outline: none;
+            font-size: 0.9em;
+            color: #172B4D;
+            background-color: #F4F5F7; /* Matching the input background with the body background */
         }
         .form-inline button {
             font-size: 0.9em;
@@ -43,34 +42,116 @@
             color: #ffffff;
             cursor: pointer;
         }
+        
+        /* Space status badge - updated to show space key directly */
+        .space-status {
+            display: inline-block;
+            background-color: #EBECF0;
+            color: #6B778C;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            margin-left: 5px;
+            white-space: nowrap;
+        }
+        
+        /* Space key within status badge */
+        .space-status .space-key-value {
+            font-weight: bold;
+            color: #172B4D;
+        }
+        
         .form-inline button.btn-secondary {
             background-color: #172B4D;
         }
-        footer {
+         footer {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             padding: 5px;
             border-top: 1px solid #dfe1e6;
-            font-size: 0.8em;
+            margin-bottom: 10px; /* Add some space below the footer */
+            font-size: 0.9em;
         }
+        
+        /* Search filters container */
+        .search-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 5px;
+            border-top: 1px solid #dfe1e6;
+            background-color: #F4F5F7;
+        }
+        
+        /* Filter groups */
+       .filter-group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+        
+        .filter-group label {
+            font-size: 0.8em;
+            margin-right: 5px;
+            color: #172B4D;
+        }
+        
+        /* Sort dropdown */
+        #sort-order {
+            height: 24px;
+            padding: 0 5px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background-color: #FFFFFF;
+        }
+        
+        /* Checkbox styling */
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        
+        .filter-checkbox input[type="checkbox"] {
+            margin-right: 4px;
+        }
+        
+        .filter-checkbox label {
+            font-size: 0.8em;
+            color: #172B4D;
+            cursor: pointer;
+        }
+
         #spacekey {
-        width: 50%;
-        height: 20px;
-        padding: 2px;
-        border: 1px solid #dfe1e6;
-        border-radius: 3px;
-        font-size: 0.8em;
-        background-color: #F4F5F7; /* Matching the input background with the body background */
+            flex-grow: 1;
+            min-width: 120px;
+            height: 20px;
+            padding: 2px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background-color: #F4F5F7;
+            margin-right: 5px;
+        }
+        #spacekey.inactive {
+            color: #97A0AF;
+            background-color: #EBECF0;
+            border-color: #DFE1E6;
         }
         #go-to-options {
             padding: 5px 10px;
             margin-left: 5px;
-            font-size: 0.8em;
-            background-color: #0da4fc;
+            font-size: 0.9em; /* Match the size of the search button */
+            background-color: #0dd0fc;
+            color: #ffffff;
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            white-space: nowrap;
         }
         text {
             padding: 5px 10px;
@@ -87,33 +168,267 @@
         }
 
         .space-key {
-        color:#6c757d; /* Grey color */
-        /* font-weight: bold; Make it bold */
-        font-size: 0.8em; /* Slightly smaller font size */
-        margin-left: 5px;
-        font-style: italic;
+            color:#6c757d; /* Grey color */
+            /* font-weight: bold; Make it bold */
+            font-size: 0.8em; /* Slightly smaller font size */
+            margin-left: 5px;
+            font-style: italic;
         }
 
-</style>
+        /* Space controls container */
+        .space-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Default space selector */
+        #defspace {
+            height: 20px;
+            padding: 0 2px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.8em;
+            background-color: #F4F5F7;
+            margin-right: 5px;
+            width: 80px;
+        }
+
+        /* Space key input container */
+        .spacekey-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        /* error-container */
+        .error-container {
+            background-color: #FFEBE6;
+            border: 1px solid #FF8F73;
+            border-radius: 3px;
+            padding: 15px;
+            margin: 10px 0;
+            color: #DE350B;
+        }
+        
+        .error-container h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+            color: #DE350B;
+        }
+        
+        .error-container p {
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        
+        .error-container a {
+            color: #0052CC;
+            text-decoration: none;
+        }
+        
+        .error-container a:hover {
+            text-decoration: underline;
+        }
+        
+        .error-details {
+            font-family: monospace;
+            background-color: #F4F5F7;
+            padding: 5px;
+            border-radius: 3px;
+            margin-top: 10px;
+            word-break: break-word;
+        }
+
+
+        
+
+    .checkbox-frame {
+        display: flex;
+        border: 1px solid #dfe1e6;
+        border-radius: 3px;
+        padding: 2px 6px; /* Reduced from 6px 10px */
+        margin-right: 8px;
+        background-color: #FFFFFF;
+        align-items: center; /* Ensure vertical alignment */
+    }
     
+    /* Update the custom-checkbox-container style */
+    .custom-checkbox-container {
+        margin: 0;
+        display: flex;
+        align-items: center; /* Ensure vertical alignment */
+        position: relative;
+        white-space: nowrap; /* Prevent wrapping */
+    }
+    
+    /* Make sure the label stays on the same line */
+    .custom-checkbox-container label {
+        display: inline-block;
+        font-size: 0.8em;
+        color: #172B4D;
+        cursor: pointer;
+        margin-right: 4px; /* Add some space between label and status */
+    }
+    
+    /* Status span styling */
+    .custom-checkbox-container span {
+        font-size: 0.75em;
+        color: #6B778C;
+        font-style: italic;
+    }
+    
+    
+    /* Adjust the custom checkbox container for the new layout */
+    .custom-checkbox-container {
+        margin: 0;
+    }
+
+        .custom-checkbox-container input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+        }
+
+        .custom-checkbox-visual {
+        width: 16px; /* Reduced from 18px */
+        height: 16px; /* Reduced from 18px */
+        border: 1px solid #dfe1e6;
+        border-radius: 3px;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 10px; /* Reduced from 12px */
+        margin-right: 6px; /* Reduced from 8px */
+        }
+
+        /* Unchecked state */
+        .custom-checkbox-visual::after {
+        content: "";
+        color: #6b778c;
+        }
+
+        /* Checked state */
+        input[type="checkbox"]:checked:not(:indeterminate) ~ .custom-checkbox-visual {
+        background-color: #0052cc;
+        border-color: #0052cc;
+        }
+
+        input[type="checkbox"]:checked:not(:indeterminate) ~ .custom-checkbox-visual::after {
+        content: "✓";
+        color: white;
+        }
+
+        /* Indeterminate state */
+        input[type="checkbox"]:indeterminate ~ .custom-checkbox-visual {
+        background-color: #ff5630;
+        border-color: #ff5630;
+        }
+
+        input[type="checkbox"]:indeterminate ~ .custom-checkbox-visual::after {
+        content: "!";
+        color: white;
+        }
+
+
+    </style>
 </head>
 <body>
     <h1 id="title">Search Confluence</h1>
     <form id="confluenceForm" class="form-inline mb-2">
-        <input type="text" id="confluenceSearchQuery" placeholder="Enter search query." required>
+        <input type="text" id="confluenceSearchQuery" placeholder="Enter search query.">
         <button type="submit" class="btn btn-primary" title="Hold Ctrl or Shift and click to open Confluence advanced search.">Search</button>
     </form>
     <footer>
-        <img id="popout" src="images/popout-16.png" style="cursor:pointer;">
-        <img id="help" src="images/help.png" style="cursor:pointer;">
+        <div class="left-controls">
+            <img id="popout" src="images/popout-16.png" style="cursor:pointer;" title="Open in new window">
+            <img id="help" src="images/help.png" style="cursor:pointer;" title="Help">
+        </div>
         
-        <input type="text" id="spacekey" placeholder="SpaceKey">
-        <div id="status_msg"></div>
-        <button id="go-to-options">Options</button>
+        <div class="space-controls">
+            <select id="defspace" title="Default space search mode">
+                <option value="s">settings</option>
+                <option value="l">last accessed</option>
+                <option value="g">global</option>
+            </select>
+            <input type="text" id="spacekey" placeholder="SpaceKey">
+            <span id="space-status" class="space-status" style="display:none;"></span>
+            <div id="status_msg"></div>
+        </div>
+        
+        <button id="go-to-options" class="btn btn-primary">Options</button>
     </footer>    
+    <!-- Search filters section -->
+    <div class="search-filters">
+        <div class="filter-group">
+            <label for="sort-order">Sort by:</label>
+            <select id="sort-order">
+                <option value="relevance">Relevance</option>
+                <option value="oc">Creation date (DESC)</option>
+                <option value="om">Modified date (DESC)</option>
+                <option value="!oc">Creation date (ASC)</option>
+                <option value="!om">Modified date (ASC)</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <div class="checkbox-frame">
+                <div class="custom-checkbox-container">
+                    <input type="checkbox" id="cbm-filter" class="three-state-checkbox">
+                    <div class="custom-checkbox-visual"></div>
+                    <label for="cbm-filter">Creator</label>
+                    <span id="cbm-status"></span>
+                </div>
+            </div>
+            <div class="checkbox-frame">
+                <div class="custom-checkbox-container">
+                    <input type="checkbox" id="bm-filter" class="three-state-checkbox">
+                    <div class="custom-checkbox-visual"></div>
+                    <label for="bm-filter" title="Contributor">By me</label>
+                    <span id="bm-status"></span>
+                </div>
+            </div>
+              <div class="checkbox-frame">
+                <div class="custom-checkbox-container">
+                    <input type="checkbox" id="w-filter" class="three-state-checkbox">
+                    <div class="custom-checkbox-visual"></div>
+                    <label for="w-filter" title="Watched by me">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 2px;">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+              <div class="checkbox-frame">
+                <div class="custom-checkbox-container">
+                    <input type="checkbox" id="m-filter" class="three-state-checkbox">
+                    <div class="custom-checkbox-visual"></div>
+                    <label for="m-filter" title="Mentioned">@M</label>
+                </div>
+            </div>
+              <div class="checkbox-frame">
+                <div class="custom-checkbox-container">
+                    <input type="checkbox" id="f-filter" class="three-state-checkbox">
+                    <div class="custom-checkbox-visual"></div>
+                    <label for="f-filter" title="Favourite">
+                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 2px;">
+                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                        </svg>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <table>
         <tr>
-            <td><div id="results_msg" ></div></td>
+            <td><div id="results_msg"></div></td>
             <td><img id="results_prev" src="images/prev-8.png" tabindex=0 style="cursor:pointer;"></td>
             <td><img id="results_next" src="images/next-8.png" tabindex=0 style="cursor:pointer;"></td>
         </tr>
@@ -121,7 +436,6 @@
     
     <div id="results"></div>
 
-    <script src="jquery-3.7.1.min.js"></script>
     <script type="module" src="search.js"></script>
 </body>
 </html>

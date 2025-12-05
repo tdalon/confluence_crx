@@ -1,95 +1,277 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Confluence Options</title>
-    <style>
-      body {
-          font-family: Arial, sans-serif;
-          padding: 15px;
-          width: 350px;
-          background-color: #F4F5F7;
-          color: #172B4D;
-      }
-    </style>
-  </head>
-  <body>
-    <table>
-      <tr>
-        <td><text>Root Url</text></td>
-        <td><input type="text" id="rooturl" placeholder="rooturl"></td>
-      <tr>
-      
-      <tr>
-        <td><text>Type</text></td>
-        <td>
-        <select id="type">
-          <option value="page">page</option>
-          <option value="blogpost">blogpost</option>
-          <option value="page&blogpost">page&blogpost</option>
-          <option value="all">all</option>
-        </select>
-        </td>
-      <tr>
-  
-      <tr>
-        <td><text>Space Key(s)</text></td>
-          <td><input type="text" id="spacekey" placeholder="SpaceKey"></td>
-      </tr>
-
-      <tr>
-        <td><text>Default Space</text></td>
-        <td>
-        <select id="defspace">
-          <option value="l">last accessed</option>
-          <option value="g">global</option>
-          <option value="s">setting</option>
-        </select>
-        </td>
-      <tr>
-  
-      <tr>
-        <td><text>Limit</text></td>
-        <td><input type="number" id="limit" placeholder="Page Size" value="25"><td>
-      </tr>
-      <tr>
-        <td>
-          <label for="advancedSearch" title="When searching from the omnibox, use Confluence native advanced Search if selected.">Advanced Search</label>
-        </td>
-        <td>
-          <input type="checkbox" id="advancedsearch">
-        </td>
-      </tr>
-      
-      <tr>
-        <td><text>Link Format</text></td>
-        <td>
-        <select id="linkFormat" title="Link display text format. Page Title - Space Name - Confluence Name">
-          <option value="short">short</option>
-          <option value="middle">middle</option>
-          <option value="full">full</option>
-          <option value="breadcrumb">breadcrumb</option>
-          <option value="?">?</option>
-        </select>
-        </td>
-      <tr>
-      <tr>
-        <td><text>Breadcrumb Start Level</text></td>
-        <td>
-          <input type="number" id="startBreadcrumb" min="-10" max="10" value="0" 
-                 title="Start level for the breadcrumb (0 = include all, 1, : skip first level after Home, -1: only space, -2: first parent)">
-        </td>
-      </tr>
+<head>
+  <title>Confluence Extension Options</title>
+  <style>
+     html, body {
+      margin: 0;
+      padding: 0;
+      height: auto;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f5f7;
+      color: #172b4d;
+      min-width: 700px;
+      box-sizing: border-box;
+    }
+    .container {
+      max-width: 650px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      padding: 20px;
+      margin-bottom: 20px; /* Add margin at the bottom */
+    }
+    h1 {
+      margin-top: 0;
+      color: #172b4d;
+      border-bottom: 1px solid #dfe1e6;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .form-group {
+      margin-bottom: 10px; /* Further reduced */
+    }
+    label {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: bold;
+    }
+    input[type="text"], select {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #dfe1e6;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      align-items: center;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    button.primary {
+      background-color: #0052cc;
+      color: white;
+      border: none;
+    }
+    button.primary:hover {
+      background-color: #0065ff;
+    }
+    button.secondary {
+      background-color: #f4f5f7;
+      color: #172b4d;
+      border: 1px solid #dfe1e6;
+    }
+    button.secondary:hover {
+      background-color: #ebecf0;
+    }
+    button.icon-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 3px;
+      background-color: transparent;
+      border: none;
+      color: #42526e;
+    }
+    button.icon-button:hover {
+      background-color: #f4f5f7;
+    }
+    .icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    #status_msg {
+      padding: 8px 16px;
+      border-radius: 3px;
+      text-align: center;
+      display: inline-block;
+      margin: 0;
+      height: 18px; /* Match button height */
+      line-height: 18px; /* Vertically center text */
+      vertical-align: middle;
+    }
+    #status_msg.success {
+      background-color: #e3fcef;
+      color: #006644;
+      border: 1px solid #00875a;
+    }
+    .section {
+      border-bottom: 1px solid #dfe1e6;
+      padding-bottom: 10px; /* Further reduced */
+      margin-bottom: 10px; /* Further reduced */
+    }
+    .section:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #6b778c;
+      margin-top: 3px;
+    }
     
-    </table>
+    /* New layout with columns */
+    .two-column {
+      display: flex;
+      gap: 20px;
+    }
+    .column {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      Confluence Extension Options
+      <div class="header-actions">
+        <button id="help" class="icon-button" title="Help">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+          </svg>
+        </button>
+      </div>
+    </h1>
 
+    <div class="section">
+      <div class="form-group">
+        <label for="rooturl">Confluence Root URL:</label>
+        <input type="text" id="rooturl" placeholder="e.g., https://yourcompany.atlassian.net or yourcompany">
+        <p class="help-text">For Cloud: enter subdomain or full URL. For Server/DC: enter your Confluence domain URL.</p>
+      </div>
+    </div>
 
-    <img id="help" src="images/help.png" style="cursor:pointer;">
-    
-<footer>
-  <button id="save">Save</button>
-  <div id="status_msg"></div>
-</footer>
+    <div class="section two-column">
+      <div class="column">
+        <div class="form-group">
+          <label for="spacekey">Space Key(s):</label>
+          <input type="text" id="spacekey" placeholder="e.g., SPACE1,SPACE2">
+          <p class="help-text">Comma-separated list of space keys to search in.</p>
+        </div>
 
-    <script src="options.js"></script>
-  </body>
+        <div class="form-group">
+          <label for="defspace">Default Space Search:</label>
+          <select id="defspace">
+            <option value="s">Use Space Key(s) from settings</option>
+            <option value="l">Use Last Accessed Space</option>
+            <option value="g">Global (all spaces)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="limit">Result Limit/ Page Size:</label>
+          <input type="text" id="limit" placeholder="e.g., 10">
+        </div>
+      </div>
+      
+      <div class="column">
+        <div class="form-group">
+          <label for="type">Content Type:</label>
+          <select id="type">
+            <option value="page">Pages only</option>
+            <option value="blogpost">Blog posts only</option>
+            <option value="page&blogpost">Pages and blog posts</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="advsearch">Omnibox Search Type:</label>
+          <select id="advancedsearch">
+            <option value="false">Extension Search</option>
+            <option value="true">Confluence Advanced Search</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section two-column">
+      <div class="column">
+        <div class="form-group">
+          <label for="linkFormat">Link Format:</label>
+          <select id="linkFormat">
+            <option value="full">Full title</option>
+            <option value="middle">Middle (remove last part)</option>
+            <option value="short">Short (remove last parts)</option>
+            <option value="breadcrumb">Breadcrumb</option>
+            <option value="?">Ask each time</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="column">
+        <div class="form-group">
+          <label for="startBreadcrumb">Breadcrumb Start Level:</label>
+          <input type="text" id="startBreadcrumb" placeholder="e.g., 1">
+          <p class="help-text">Level to start breadcrumb from (0 = root).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section two-column">
+      <div class="column">
+        <div class="form-group">
+          <label for="tocDefaultLevel">TOC Default Level:</label>
+          <select id="tocDefaultLevel">
+            <option value="1">H1 only</option>
+            <option value="2">H1-H2</option>
+            <option value="3">H1-H3</option>
+            <option value="4">H1-H4</option>
+            <option value="5">H1-H5</option>
+            <option value="6" selected>All levels</option>
+          </select>
+          <p class="help-text">Default heading level to show in Table of Contents.</p>
+        </div>
+      </div>
+      
+      <div class="column">
+        <div class="form-group">
+          <label for="tocAlignment">TOC Alignment:</label>
+          <select id="tocAlignment">
+            <option value="right">Right side</option>
+            <option value="left">Left side</option>
+          </select>
+          <p class="help-text">Default position of the Table of Contents overlay.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <div class="button-group">
+        <button id="save" class="primary">Save Options</button>
+        <button id="open-label-dict" class="secondary">Label Dictionary</button>
+        <button id="open-snippets" class="secondary">Snippets</button>
+      </div>
+      <div id="status_msg"></div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+  
+</body>
 </html>

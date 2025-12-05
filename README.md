@@ -1,29 +1,50 @@
 - [About](#about)
+  - [How to support the developer](#how-to-support-the-developer)
+  - [How to submit an issue](#how-to-submit-an-issue)
+- [Extension Button](#extension-button)
+  - [Single click on icon](#single-click-on-icon)
+  - [Extension Context Menu](#extension-context-menu)
+- [Extension Keyboard Shortcuts](#extension-keyboard-shortcuts)
 - [Options](#options)
   - [rooturl](#rooturl)
-  - [Space Key](#space-key)
+  - [Space Key(s)](#space-keys)
+  - [Default Space](#default-space)
   - [Limit](#limit)
+  - [Omnibox Search Type](#omnibox-search-type)
+  - [Link Format](#link-format)
+  - [Breadcrumb Start Level](#breadcrumb-start-level)
 - [Search](#search)
+  - [Difference Cloud vs. Server/DataCenter](#difference-cloud-vs-serverdatacenter)
   - [Query parameter](#query-parameter)
     - [Quick Open](#quick-open)
+    - [Search Keywords](#search-keywords)
+  - [Quick Filters](#quick-filters)
   - [Open results](#open-results)
+  - [Multiple Spaces](#multiple-spaces)
 - [Omnibox](#omnibox)
+  - [Disable the omnibox keyword](#disable-the-omnibox-keyword)
   - [Change the omnibox keyword](#change-the-omnibox-keyword)
-- [Extension Keyword](#extension-keyword)
+  - [Default Search used](#default-search-used)
+  - [Omnibox Keywords](#omnibox-keywords)
+    - [Quick Create Page](#quick-create-page)
+    - [Quick Navigate to Space](#quick-navigate-to-space)
+- [Snippets](#snippets)
+- [Label Dictionary](#label-dictionary)
 - [Context Menu](#context-menu)
   - [Numbering Headings](#numbering-headings)
-- [How to submit an issue](#how-to-submit-an-issue)
-- [How to support the developer or show appreciation](#how-to-support-the-developer-or-show-appreciation)
+  - [Copy Link](#copy-link)
 
 
 # About
 
 This extension supports Confluence Cloud and Confluence Server variants.
-It provides search capability and some additional functionality.
+It provides search capability and some additional functionality like Snippet management, Heading Numbering and Copy Link.
 
 It doesn't require the user to provide authentication, login credentials but simply permission for accessing Confluence if you don't use the cloud version. Note: Only read permission is used. (but Chrome can not distinguish.)
 
 See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) and Blog posts labelled with [#confluence_crx](https://tdalon.blogspot.com/search/label/confluence_crx)
+
+See [Changelog](Changelog.md) for history of changes.
 
 <p align="left">
 <a href="https://chrome.google.com/webstore/detail/confluence/dkofhaiegpbdikenaoljlbencjdbbpii">
@@ -33,11 +54,47 @@ See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) an
 
 Extension Overview:
 <p align="center">
-<a href="docs/assets/images/promo.png">
-  <img src="docs/assets/images/promo_small.png">
+<a href="docs/assets/images/promo_1.png">
+  <img src="docs/assets/images/promo_1.png">
   </a>
 </p>
 
+<p align="center">
+<a href="docs/assets/images/promo_2.png">
+  <img src="docs/assets/images/promo_2.png">
+  </a>
+</p>
+
+
+## How to support the developer
+
+This extension is free and open source.
+You can show your appreciation by [Buying me a coffee](https://www.buymeacoffee.com/tdalon).
+I love getting nice Reviews of the Chrome Extension in the Chrome WebStore. It is only one-click and a few words.
+
+## How to submit an issue
+
+You can submit an issue to report a bug or make a feature request using the [issues](https://github.com/tdalon/confluence_crx/issues) in the GitHub repository.
+
+# Extension Button
+
+It is recommended to pin the Extension Button for a quick access to the extension functionality.
+
+## Single click on icon
+
+## Extension Context Menu
+
+When you right-click on the Extension Icon (you can pin the extension to have the icon always visible.), it will open a menu with some actions.
+
+The Copy Link function is available in the extension action menu. See documentation [below](#copy-link). 
+
+# Extension Keyboard Shortcuts
+
+In the [extensions keyboard shortcuts page](chrome://extensions/shortcuts), you can set a few shortcuts :
+- open the popup search 
+- [copy a link](#copy-link)
+- toggle the ToC
+- insert snippet
 
 # Options
 
@@ -76,10 +133,12 @@ If no space keyword is used the default space can be specified as:
 
 This is the limit for the number of results returned by the search query. Default is 25. See doc [pagination](https://developer.atlassian.com/server/confluence/pagination-in-the-rest-api/).
 
-## Advanced Search
+## Omnibox Search Type
 
-If it is selected, when you search from the omnibox, it will open by default the native Confluence Advanced Search instead of the Extension Search page.
+When you search from the [Omnibox](#omnibox), you can configure that it uses the native Confluence Advanced Search instead of the Extension Search.
 No limit to the search results is applied in this case.
+
+Note that from the extension search bar you can also trigger the advanced search using a Shift click as explained here.
 
 ## Link Format
 
@@ -111,7 +170,7 @@ This numeric setting controls how many ancestor levels to skip from the top or d
 
 The Home Page is not displayed in the Breadcrumb to make it more compact. When you click on the Space link it will open the Home Page of the Space anyway.
 
-Higher positive values will skip more levels from the top, while negative values will include more levels starting from rigth to the top/home. 
+Higher positive values will skip more levels from the top, while negative values will include more levels starting from right to the top/home. 
 The default is **0**, which typically skips the space home page. Depending on your space structure, you might want to adjust this setting.
 
 # Search 
@@ -129,18 +188,61 @@ If you enter multiple labels, it will search by labels with an AND combination. 
 
 ### Quick Open
 
-If you use the keyword 'o' or ' -o' in the query to open the first match directly. (Quick Open feature) 
+You use the keyword 'o' or ' -o' in the query to open the first match directly. (Quick Open feature) 
 
 ### Search Keywords
 
 | **Keyword** | **Meaning**                                                                 |
 |-------------|-----------------------------------------------------------------------------|
-| `#`         | Prefix for labels. Searches by labels with an AND combination.             |
-| `-s` or `s` | Search in space(s) with key defined in the Options                             |
-| `-g` or `g` | Global search (all spaces)                             |
-| `-l` or `l` | Search in last accessed space                            |
+| `#`         | Prefix for labels. Searches by labels with an AND combination.              |
+| Space keywords |
+| `-s` or `s` | Search in space(s) with key defined in the Options/ Settings                |
+| `-g` or `g` | Global search (all spaces)                                                  |
+| `-l` or `l` | Search in last accessed space                                               |
+| Sorting / Order |
+| `-om`/`-!om`  | Sort by modified date:  newest first / oldest first              |
+| `-oc`/ `-!oc`  | Sort by created date: newest first / oldest first               |
+| Current User filters |
+| `-bm`/`-!bm`  | by me = contributor=currentUser() /  NOT edited by me               |
+| `-cbm`/ `-!cbm`  | created by me  / NOT created by me              |
+| `-f`/`-!f`  | favorite / NOT a favorite              |
+| `-m`/`-!m`  | mentioned  / NOT mentioned             |
+| `-w`/`-!w`  | watched / NOT watched              |
+
+
+Space Keywords can start with `-` or not. 
 
 Last 3 space settings overwrite the space options.
+
+You can also pass a specific space Key after the `-s` or `s` keyword, even multiple spaces separated by a comma.
+
+Keywords for sorting starts with `o` like `o`rder.
+The prefix `!` is used for sorting by ascendant (ASC) order (opposite of natural DESC order, latest/ most recent first). 
+
+Sorting and user filters once used in the extension search will be applied to the UI quick filters and removed from the search query.
+
+## Quick Filters
+
+The Extension Search UI provides quick filter for quick sorting/ ordering of the search results and quick filtering of pages.
+
+<p align="center">
+<a href="docs/assets/images/options.png">
+  <img src="docs/assets/images/quick_filters.png">
+  </a>
+</p>
+
+You can sort by 
+* relevance (this is the default)
+* creation date (ascendant or descendant)
+* last modified date (ascendant or descendant)
+
+You can quickly filter by pages related to you i.e.
+* pages you are or are NOT a creator of
+* pages you are or are NOT a contributor of
+*  pages you are or are NOT a watcher of
+* pages you have as Favorite or NOT
+
+The checkboxes for these user filters have three states. If you click twice it will toggle to a NOT filter marked with a red exclamation mark.
 
 ## Open results
 
@@ -153,13 +255,17 @@ In case you search in multiple spaces (either globally or because you have defin
 # Omnibox
 
 With the extension an omnibox keyword is implemented: It is the 'c' keyword.
-In the omnibox, type 'c' followed by Space. It will complete into 'Confluence'. Then enter your search query as explained above.
+In the omnibox (Open for example with a new Tab Ctrl+T), type 'c' followed by Space. It will complete into 'Confluence'. Then enter your search query as explained above.
 (Using Tab instead of Space will prefill the omnibox with suggestions)
+
+## Disable the omnibox keyword
+
+Under chrome://settings/searchEngines you can disable the extension keyword. Scroll down to the last section "Extensions" to find it.
 
 ## Change the omnibox keyword
 
-You can change the omnibox keyword in the [extension source](https://tdalon.blogspot.com/2020/10/chrome-extension-view-source.html).
-(It is afaik not possible to set is as a user extension option.)
+It is not possible to edit the keyword unfortunately.
+You can only change the omnibox keyword in the [extension source](https://tdalon.blogspot.com/2020/10/chrome-extension-view-source.html) in the manifest.json.
 
 This is implemented in the manifest.json file:
 
@@ -175,11 +281,11 @@ Otherwise it will open the extension search results page in the current tab.
 ## Omnibox Keywords
 
 | **Keyword** | **Meaning**                                                                 |
-|-------------|-----------------------------------------------------------------------------|                 |
-| `-r` or `r`     | Opens the release notes.                                                   |
-| `-h` or `h`       | Opens the help documentation.                                              |
-| `-c`,`c` | Creates a new page in the specified space key or default. 
-| `-n`,`n` | Quick navigate to specified space key or first default in settings.                             |
+|-------------|-----------------------------------------------------------------------------|    
+| `-r` or `r`     | Opens the release notes.                                                |
+| `-h` or `h`       | Opens the help documentation.                                         |
+| `-c`,`c` | Creates a new page in the specified space key or default.                      |
+| `-n`,`n` | Quick navigate to specified space key or first default in settings.            |
 
 ### Quick Create Page
 
@@ -191,16 +297,15 @@ The page will be created in the home of the space so you will need to move it af
 
 To quickly open a Confluence Space you can use the `-n` or `n` keyword. You can also provide a specific spacekey after the `-s` flag. (lowercases works as well)
 
-# Extension Keyboard Shortcuts
+# Snippets
 
-In the [extension keyboard shortcuts page](chrome://extensions/shortcuts), you can set a few shortcuts for example to open the popup search or [copy a link](#copy-link).
+For more information on how to use snippets, see [Snippets.md](docs/Snippets.md).
+
+# Label Dictionary
+
+For more information on how to use the label dictionary, see [Label Dictionary](docs/LabelDict.md).
 
 
-# Extension Action Context Menu
-
-When you right-click on the Extension Icon (you can pin the extension to have the icon always visible.), it will open a menu with some actions.
-
-The Copy Link function is available in the extension action menu. See documentation [below](#copy-link). 
 
 # Context Menu
 
@@ -212,7 +317,9 @@ When you have a Confluence page opened in edit mode, you can access some functio
 
 You can add or remove numbering to headings using the corresponding menu entries.
 
-See separate post [here](https://tdalon.blogspot.com/2024/03/crx-confluence-numbered-headings.html)
+![Num Headings](/docs/assets/images/num_headings.png)
+
+See separate post [here](https://tdalon.blogspot.com/2024/03/crx-confluence-numbered-headings.html) for implementation history.
 
 ## Copy Link
 
@@ -225,11 +332,3 @@ N.B.: The copy link feature does not work if the address bar is selected due to 
 
 See separate blog post [here](https://tdalon.blogspot.com/2021/04/confluence-share-link.html) regarding motivation and implementation.
 
-# How to submit an issue
-
-You can submit an issue to report a bug or make a feature request using the [GitHub issues](https://github.com/tdalon/confluence_crx/issues) in the repository.
-
-# How to support the developer or show appreciation
-
-This extension is free and open source.
-You can show your appreciation by [Buying me a coffee](https://www.buymeacoffee.com/tdalon).

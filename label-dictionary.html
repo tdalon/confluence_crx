@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Label Dictionary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f5f7;
+            color: #172b4d;
+            min-width: 600px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 3px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #dfe1e6;
+            padding-bottom: 10px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: #172b4d;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        button.icon-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 3px;
+            background-color: transparent;
+            border: none;
+            color: #42526e;
+            cursor: pointer;
+        }
+        
+        button.icon-button:hover {
+            background-color: #f4f5f7;
+        }
+        
+        .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .description {
+            color: #6b778c;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #172b4d;
+        }
+        
+        .add-label-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f4f5f7;
+            border-radius: 3px;
+            border: 1px solid #dfe1e6;
+        }
+        
+        .add-label-form input {
+            padding: 8px 12px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        
+        .add-label-form input:first-of-type {
+            width: 200px;
+        }
+        
+        .add-label-form input:nth-of-type(2) {
+            width: 150px;
+        }
+        
+        .add-label-form .arrow {
+            font-weight: bold;
+            color: #6b778c;
+            font-size: 1.2em;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        button.primary {
+            background-color: #0052cc;
+            color: white;
+            border: none;
+        }
+        
+        button.primary:hover {
+            background-color: #0065ff;
+        }
+        
+        button.secondary {
+            background-color: #f4f5f7;
+            color: #172b4d;
+            border: 1px solid #dfe1e6;
+        }
+        
+        button.secondary:hover {
+            background-color: #ebecf0;
+        }
+        
+        button.secondary.small {
+            padding: 4px 8px;
+            font-size: 0.8em;
+            margin-right: 5px;
+        }
+        
+        button.danger {
+            background-color: #de350b;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+        
+        button.danger:hover {
+            background-color: #bf2600;
+        }
+        
+        .label-list {
+            margin-top: 20px;
+        }
+        
+        .label-list h2 {
+            color: #172b4d;
+            margin-bottom: 15px;
+        }
+        
+        .label-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #dfe1e6;
+            border-radius: 3px;
+            margin-bottom: 8px;
+            background-color: #f4f5f7;
+        }
+        
+        .label-item:hover {
+            background-color: #ebecf0;
+        }
+        
+        .label-mapping {
+            display: flex;
+            align-items: center;
+            font-family: monospace;
+            font-size: 0.9em;
+            flex-grow: 1;
+            gap: 15px;
+        }
+        
+        .label-full-column {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .label-shortcuts-column {
+            flex: 1;
+            min-width: 150px;
+            text-align: right;
+        }
+        
+        .label-shortcut {
+            color: #0052cc;
+            font-weight: bold;
+        }
+        
+        .label-full {
+            color: #172b4d;
+        }
+        
+        .label-arrow {
+            color: #6b778c;
+            margin: 0 8px;
+        }
+        
+        .label-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-left: 15px;
+        }
+        
+        .no-shortcuts {
+            color: #6b778c;
+            font-style: italic;
+            font-size: 0.8em;
+        }
+        
+        .examples {
+            background-color: #f4f5f7;
+            padding: 15px;
+            border-radius: 3px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            margin-top: 0;
+            color: #172b4d;
+            font-size: 1em;
+        }
+        
+        .examples ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .examples li {
+            font-size: 0.9em;
+            color: #6b778c;
+            margin-bottom: 5px;
+        }
+        
+        .examples code {
+            background-color: #ebecf0;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-family: monospace;
+            color: #172b4d;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b778c;
+            font-style: italic;
+        }
+        
+        .notification {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 3px;
+            display: none;
+        }
+        
+        .notification.success {
+            background-color: #e3fcef;
+            color: #006644;
+            border-left: 4px solid #00875a;
+        }
+        
+        .notification.error {
+            background-color: #ffebe6;
+            color: #bf2600;
+            border-left: 4px solid #bf2600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Manage Label Dictionary</h1>
+            <div class="header-actions">
+                <button id="help" class="icon-button" title="Help">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div class="description">
+            Configure shortcuts for frequently used labels. When you search with <code>#shortcut</code>, 
+            it will be automatically expanded to the full label. If no shortcut is defined and 1-2 letter label is used,
+            label will be expanded with first partial match in keywword or full name.
+        </div>
+        
+        <div id="notification" class="notification"></div>
+        
+        <div class="add-label-form">
+            <span>#</span>
+            <input type="text" id="full-label-input" placeholder="full-label-name" maxlength="50">
+            <span class="arrow">←</span>
+            <span>#</span>
+            <input type="text" id="shortcut-input" placeholder="shortcut (optional)" maxlength="20">
+            <button id="add-label-btn" class="primary">Add</button>
+        </div>
+        
+        <div class="label-list">
+            <h2>Your Label Shortcuts</h2>
+            <div id="labels-container">
+                <!-- Labels will be loaded here -->
+                <div class="empty-state" id="empty-state">
+                    No label shortcuts defined yet. Add one above to get started!
+                </div>
+            </div>
+        </div>
+        
+        <div class="examples">
+            <h3>Examples:</h3>
+            <ul>
+                <li><code>#sharepointonline</code> ← <code>#spo</code></li>
+                <li><code>#kb-how-to-article</code> ← <code>#kb</code></li>
+                <li><code>#documentation</code> (no shortcut needed, will match 'd')</li>
+                <li><code>#application-programming-interface</code> ← <code>#api, #prog</code> (multiple shortcuts)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script type="module" src="label-dictionary-ui.js"></script>
+</body>
+</html>

@@ -1,62 +1,97 @@
 {
-   "name": "Confluence",
-   "description": "Chrome Extension for Confluence",
-   "short_name": "confluence",
-   "author":"Thierry Dalon",
-   "host_permissions": [ "https://*.atlassian.net/wiki/" ],
-   "optional_host_permissions": ["https://*/*"],
-   "version": "1.3",
-   "manifest_version": 3, 
-   "permissions": ["storage","contextMenus","scripting","activeTab","notifications","clipboardWrite"],
-   "background": {
-      "service_worker": "background.js",
-      "type": "module"
+    "name": "Confluence",
+    "description": "Chrome Extension for Confluence",
+    "short_name": "confluence",
+    "author": "Thierry Dalon",
+    "host_permissions": ["https://*.atlassian.net/wiki/"],
+    "optional_host_permissions": ["https://*/*"],
+    "version": "2.2",
+    "manifest_version": 3,
+    "permissions": [
+        "storage",
+        "contextMenus",
+        "scripting",
+        "activeTab",
+        "notifications",
+        "clipboardWrite",
+        "commands"
+    ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
     },
-   "action": {
-      "default_icon": {
-         "128": "images/icon-128.png",
-         "16": "images/icon-16.png",
-         "32": "images/icon-32.png",
-         "48": "images/icon-48.png"
-      },
-      "default_popup": "search.html#popup"
-   },
-   "options_page": "options.html",
-   "options_ui": {
-      "page": "options.html",
-      "open_in_tab": false
+    "action": {
+        "default_icon": {
+            "128": "images/icon-128.png",
+            "16": "images/icon-16.png",
+            "32": "images/icon-32.png",
+            "48": "images/icon-48.png"
+        },
+        "default_popup": "search.html#popup"
     },
-   "commands": {
-      "open_popup": {
-         "description": "Open Confluence Quick Search",
-         "global": true,
-         "suggested_key": {
-            "chromeos": "Ctrl+Shift+K",
-            "linux": "Ctrl+Shift+K",
-            "mac": "Command+Shift+K",
-            "windows": "Ctrl+Shift+K"
-         }
-      },
-      "copy_link": {
-         "description": "Copy Nice Page Link",
-         "suggested_key": {
-            "chromeos": "Ctrl+Shift+C",
-            "linux": "Ctrl+Shift+C",
-            "mac": "Command+Shift+C",
-            "windows": "Ctrl+Shift+C"
-         }
-      },
-      "copy_breadcrumb_link": {
-         "description": "Copy Breadcrumb Link"
-      }
-   },
-   "icons": {
-      "128": "images/icon-128.png",
-      "16": "images/icon-16.png",
-      "32": "images/icon-32.png",
-      "48": "images/icon-48.png"
-   },   
-   "omnibox": {
-      "keyword": "c"
-   }
+    "options_page": "options.html",
+    "options_ui": {
+        "page": "options.html",
+        "open_in_tab": true
+    },
+    "commands": {
+        "open_search": {
+            "description": "Open Confluence Quick Search (New Tab)",
+            "suggested_key": {
+                "chromeos": "Alt+S",
+                "linux": "Alt+S",
+                "mac": "Alt+S",
+                "windows": "Alt+S"
+            }
+        },
+        "copy_link": {
+            "description": "Copy Nice Page Link",
+            "suggested_key": {
+                "chromeos": "Ctrl+Shift+C",
+                "linux": "Ctrl+Shift+C",
+                "mac": "Command+Shift+C",
+                "windows": "Ctrl+Shift+C"
+            }
+        },
+        "copy_breadcrumb_link": {
+            "description": "Copy Breadcrumb Link"
+        },
+        "toc_toggle": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+T"
+            },
+            "description": "Toggle Table of Contents"
+        },
+        "quick_insert_snippet": {
+            "description": "Show Snippet Selector",
+            "suggested_key": {
+                "chromeos": "Alt+I",
+                "linux": "Alt+I",
+                "mac": "Alt+I",
+                "windows": "Alt+I"
+            }
+        }
+    },
+    "icons": {
+        "128": "images/icon-128.png",
+        "16": "images/icon-16.png",
+        "32": "images/icon-32.png",
+        "48": "images/icon-48.png"
+    },
+    "omnibox": {
+        "keyword": "c"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["snippet-injector.js"],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["snippet-injector.js"],
+            "matches": ["<all_urls>"]
+        }
+    ]
 }
