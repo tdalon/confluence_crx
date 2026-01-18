@@ -65,9 +65,9 @@ function ui2query(query) {
     for (const cb_id of cb_ids) {
         const cb = document.getElementById(cb_id + '-filter');
         if (cb.checked) {
-            query += ` ${cb_id}`;
+            query += ` -${cb_id}`;
         } else if (cb.indeterminate) {
-            query += ` !${cb_id}`;
+            query += ` -!${cb_id}`;
         } 
     }
     
@@ -634,3 +634,5 @@ async function getApiSearchUrl(rootUrl) {
     console.log("searchUrl:" + searchUrl);
     return searchUrl;
 } // eofun getApiSearchUrl
+
+

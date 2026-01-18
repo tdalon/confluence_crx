@@ -287,12 +287,13 @@ export async function getSpaceKey(searchQuery) {
         return (spacekey = await getLastAccessedSpaceKey()); // returns null if not found
     }
 
-    // Option -s for space key from settings or followed word
-    if (searchQuery.match(/(\s|^)\-?s$/)) {
+    // Option -s for space key from settings ; end or before next keyword
+    if (searchQuery.match(/(\s|^)\-?s(\s+\-|$)/)) {
         return (spacekey = await getObjectFromLocalStorage("spacekey"));
     }
 
-    const match = searchQuery.match(/(\s|^)\-?s\s([^\s]*)/);
+    // Option -s for space key followed by word
+    const match = searchQuery.match(/(\s|^)\-?s\s+([^\s\-]+)/);
     if (match) {
         return match[2];
     }
@@ -359,7 +360,8 @@ export async function Query2Cql(searchStr, spacekey, type) {
     // Expand label shortcuts before processing
     searchStr = await expandLabels(searchStr);
     // Only update the search input if it exists and the query was actually expanded
-    if (originalSearchStr !== searchStr) {
+    // Check if document is available (not in service worker context)
+    if (originalSearchStr !== searchStr && typeof document !== 'undefined') {
         const searchInput = document.getElementById("confluenceSearchQuery");
         if (searchInput) {
             searchInput.value = searchStr;
@@ -401,11 +403,11 @@ export async function Query2Cql(searchStr, spacekey, type) {
 
     // Clean-up options for space from query (Space is processed before in getSpaceKey(queryStr))
     // 1. Clean-up Option -g for global search
-    searchStr = searchStr.replace(/(\s|^)\-?g(\s|$)/, "");
+    searchStr = searchStr.replace(/(\s|^)\-?g(\s+|$)/, "");
     // 2. Clean-up Option -l for last current opened Confluence page
-    searchStr = searchStr.replace(/(\s|^)\-?l(\s|$)/, "");
+    searchStr = searchStr.replace(/(\s|^)\-?l(\s+|$)/, "");
     // 3. Clean-up Option -s for space key from settings or followed word
-    searchStr = searchStr.replace(/(\s|^)\-?s(\s|$)/, "");
+    searchStr = searchStr.replace(/(\s|^)\-?s(\s+([^\s\-]*)|$)/, "");
     
     
 
@@ -429,33 +431,28 @@ export async function Query2Cql(searchStr, spacekey, type) {
 
     // User filters
     // Created by me
-    const createdByMe = searchStr.match(/(\s|^)\-?cbm(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?cbm(\s|$)/, " ");   
+    const createdByMe = searchStr.match(/(\s|^)\-?cbm(\s|$)/);  
     const notCreatedByMe = searchStr.match(/(\s|^)\-?!cbm(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?!cbm(\s|$)/, " "); 
+    searchStr = searchStr.replace(/(\s|^)\-?!?cbm(\s|$)/, " "); 
     // Watched by me
-    const watchedByMe = searchStr.match(/(\s|^)\-?w(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?w(\s|$)/, " ");   
+    const watchedByMe = searchStr.match(/(\s|^)\-?w(\s|$)/); 
     const notWatchedByMe = searchStr.match(/(\s|^)\-?!w(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?!w(\s|$)/, " "); 
+    searchStr = searchStr.replace(/(\s|^)\-?!?w(\s|$)/, " "); 
     // Mentioned
-     const mentioned = searchStr.match(/(\s|^)\-?m(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?m(\s|$)/, " ");   
+     const mentioned = searchStr.match(/(\s|^)\-?m(\s|$)/);  
     const notMentioned = searchStr.match(/(\s|^)\-?!m(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?!m(\s|$)/, " "); 
+    searchStr = searchStr.replace(/(\s|^)\-?!?m(\s|$)/, " "); 
     // Favorite
-     const favourite = searchStr.match(/(\s|^)\-?f(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?f(\s|$)/, " ");   
+    const favourite = searchStr.match(/(\s|^)\-?f(\s|$)/);
     const notFavourite = searchStr.match(/(\s|^)\-?!f(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?!f(\s|$)/, " "); 
+    searchStr = searchStr.replace(/(\s|^)\-?!?f(\s|$)/, " "); 
     
     
      
    // Clean-up Option -bm or bm for contributor=me filter
     const contributedByMe = searchStr.match(/(\s|^)\-?bm(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?bm(\s|$)/, " ");
     const notContributedByMe = searchStr.match(/(\s|^)\-?\!bm(\s|$)/);
-    searchStr = searchStr.replace(/(\s|^)\-?\!bm(\s|$)/, " ").trim();
+    searchStr = searchStr.replace(/(\s|^)\-?!?bm(\s|$)/, " ").trim();
 
     if (searchStr) {
         CQL = CQL + ' AND siteSearch ~ "' + searchStr + '"';
@@ -479,11 +476,17 @@ export async function Query2Cql(searchStr, spacekey, type) {
     } else if (notFavourite) {
         CQL = CQL + " AND NOT favourite=currentUser()";
     } 
-    // Add contributor=currentUser filter
-    if (contributedByMe) {
-        CQL = CQL + " AND contributor=currentUser()";
-    } else if (notContributedByMe) {
-        CQL = CQL + " AND NOT contributor=currentUser()";
+    // Add contributor filter - contributor does not support currentUser(). call getCurrentUser() function
+    if (contributedByMe || notContributedByMe) {
+        const username = await getCurrentUser();
+        console.log("currentUser:", username);
+        if (username && username !== "anonymous") {
+            if (contributedByMe) {
+                CQL = CQL + ` AND contributor="${username}"`;
+            } else if (notContributedByMe) {
+                CQL = CQL + ` AND NOT contributor="${username}"`;
+            }
+        }
     } 
      // watcher
     if (watchedByMe) {
@@ -530,6 +533,31 @@ export async function Query2Cql(searchStr, spacekey, type) {
     
     return CQL;
 } // eofun Query2Cql
+
+async function getCurrentUser(rootUrl) {
+    // If no rootUrl is passed, retrieve it dynamically
+    if (!rootUrl) {
+        rootUrl = await getObjectFromLocalStorage('rooturl');
+    }
+ // Send a secondary request to /rest/api/user/current to check if log in issue
+        const userInfo = await fetch(rootUrl + '/rest/api/user/current');
+        const user = await userInfo.json();
+        
+        // Log user information for debugging
+        if (user.type === "anonymous" ) {
+            // Show a notification for authentication issues
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'images/error-48.png',
+                title: 'Confluence CRX: User is anonymous.',
+                message: 'User "anonymous" will be ignored as filter.',
+                priority: 2
+            });
+            return "anonymous";
+        }
+
+        return user.username
+} // eofun getCurrentUser
 
 export async function getLastAccessedSpaceKey() {
     const rootUrl = await getObjectFromLocalStorage("rooturl");

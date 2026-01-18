@@ -143,7 +143,7 @@ const saveOptions = () => {
   // stored in chrome.storage.
   const restoreOptions = () => {
     chrome.storage.sync.get(
-      {type: 'page',defspace: 's', spacekey: '',rooturl:'', limit:25, advancedsearch: false, linkFormat:'middle',startBreadcrumb: 0, tocDefaultLevel: '6', tocAlignment: 'right' },
+      {type: 'page',defspace: 's', spacekey: '',rooturl:'', limit:25, advancedsearch: 'false', linkFormat:'middle',startBreadcrumb: 0, tocDefaultLevel: '6', tocAlignment: 'right' },
       (items) => {
         document.getElementById('type').value = items.type;
         document.getElementById('linkFormat').value = items.linkFormat;
@@ -151,7 +151,7 @@ const saveOptions = () => {
         document.getElementById('spacekey').value = items.spacekey;
         document.getElementById('rooturl').value = items.rooturl;
         document.getElementById('limit').value = items.limit;
-        document.getElementById('advancedsearch').checked = items.advancedsearch;
+        document.getElementById('advancedsearch').value = items.advancedsearch;
         document.getElementById('startBreadcrumb').value = items.startBreadcrumb;
         document.getElementById('tocDefaultLevel').value = items.tocDefaultLevel;
         document.getElementById('tocAlignment').value = items.tocAlignment;

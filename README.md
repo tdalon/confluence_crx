@@ -155,7 +155,6 @@ In this setting, you can preconfigure which size the link to a Confluence page s
 The breadcrumb format shows the page's location in the hierarchy, making it useful for sharing context. You can configure how many ancestor levels to skip from the root/ home or to display backward using the "Breadcrumb Start Level" setting.
 
 
-
 ## Breadcrumb Start Level
 
 This numeric setting controls how many ancestor levels to skip from the top or display backward when creating a breadcrumb link:
@@ -196,7 +195,7 @@ You use the keyword 'o' or ' -o' in the query to open the first match directly. 
 |-------------|-----------------------------------------------------------------------------|
 | `#`         | Prefix for labels. Searches by labels with an AND combination.              |
 | Space keywords |
-| `-s` or `s` | Search in space(s) with key defined in the Options/ Settings                |
+| `-s` or `s` | Search in space(s) with key defined in the Options/ Settings or as defined in the following word                |
 | `-g` or `g` | Global search (all spaces)                                                  |
 | `-l` or `l` | Search in last accessed space                                               |
 | Sorting / Order |

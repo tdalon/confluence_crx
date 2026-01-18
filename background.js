@@ -568,8 +568,7 @@ chrome.omnibox.onInputEntered.addListener(async function (searchQuery) {
 
     //const searchQuery = encodeURIComponent(searchQuery);
     const advancedSearch = await getObjectFromLocalStorage("advancedsearch");
-
-    if (advancedSearch && !searchQuery.match(/(\s|^)\-?o(\s|$)/)) {
+    if (advancedSearch === "true" && !searchQuery.match(/(\s|^)\-?o(\s|$)/)) {
         // not quick open
         const u = await getSearchUrl(searchQuery);
         // Open the URL in new tab and exit the function

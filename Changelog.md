@@ -2,6 +2,9 @@
 
 - [Confluence CRX - Changelog](#confluence-crx---changelog)
   - [TODO](#todo)
+  - [TODO 2026-01 (v3.0)](#todo-2026-01-v30)
+  - [2026-01-17 (v2.2.2)](#2026-01-17-v222)
+  - [2025-12-19 (v2.2.1)](#2025-12-19-v221)
   - [2025-12-05 (v2.2)](#2025-12-05-v22)
   - [2025-11-13 (v2.1.3)](#2025-11-13-v213)
   - [2025-11-06 (v2.1.2)](#2025-11-06-v212)
@@ -22,6 +25,23 @@
 ## TODO
 * Support label OR combination
 
+## TODO 2026-01 (v3.0)
+* New Confluence Search Table Results view
+*  Sort feature
+*  Last Modifier
+*  Saved Searched  / Bookmarks e.g. Following Tags for new content not by me
+*  Tag Cloud navigator
+
+## 2026-01-17 (v2.2.2)
+* fix: omnibox search does not use search type option; always advanced search
+* fix: omnibox search does not expand labels
+* contributor=currentUser() does not work. get currentUser explicitly via api
+* fix: -cbm instead of cbm
+* fix: -bm not removed from searchString e.g. query: #label -bm 
+* fix: search with -s keyword followed by spacekeys word to overwrite specific spaces and followed by further keyword starting with -. Example: -s Key -cbm
+
+## 2025-12-19 (v2.2.1)
+* fix: search with -s keyword followed by spacekeys word to overwrite specific spaces: remove spacekey word from search string
 
 ## 2025-12-05 (v2.2)
 * added quick search filters: created by me ('cbm'), contributor/by me ('bm'), watched, mentioned and favorite (also with NOT)
