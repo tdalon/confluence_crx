@@ -60,8 +60,8 @@ export async function expandLabels(searchQuery) {
 
         let expandedQuery = searchQuery;
 
-        // Find all #shortcut patterns in the query
-        const labelPattern = /#(\w+)/g;
+        // Find all #shortcut patterns in the query (including unicode characters like - or ü)
+        const labelPattern = /#([^\s#]+)/g;
         let match;
 
         // We need to process matches from right to left to avoid index shifting

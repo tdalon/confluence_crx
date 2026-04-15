@@ -77,21 +77,19 @@ export async function CopyLink(tab, format = null) {
     }
     let pageId;
     if (rootUrl.includes("atlassian.net")) {
-        // cloud version
-        // remove edit portion
+        // cloud version: remove edit portion
         url = url.replace(/\/edit\//, "");
         url = url.replace(/\/edit-v2\//, "");
-    } else {
-        if (IsConfluenceUrl) {
-            pageId = await getPageIdFromUrl(url);
-            console.log("Page ID:", pageId);
-            if (pageId) {
-                url = `${rootUrl}/pages/viewpage.action?pageId=${pageId}`; // Construct the full link
-            } else {
-                console.log("Page ID not found for URL:", url);
-                hintText =
-                    "Link copied to clipboard but failed to find Page ID for the Confluence link!";
-            }
+    } 
+    if (IsConfluenceUrl) {
+        pageId = await getPageIdFromUrl(url);
+        console.log("Page ID:", pageId);
+        if (pageId) {
+            url = `${rootUrl}/pages/viewpage.action?pageId=${pageId}`; // Construct the full link
+        } else {
+            console.log("Page ID not found for URL:", url);
+            hintText =
+                "Link copied to clipboard but failed to find Page ID for the Confluence link!";
         }
     }
 
@@ -139,6 +137,8 @@ export async function CopyLink(tab, format = null) {
                     sliceIdx
                 );
 
+                //console.log("Breadcrumb:", htmlBreadcrumb);
+
                 // Copy to clipboard
                 Clip(tab, htmlBreadcrumb, htmlBreadcrumb);
 
@@ -157,21 +157,9 @@ export async function CopyLink(tab, format = null) {
     }
 
     // Copy the link using clipboard API
-    console.log("url:", url, "text:", text);
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (url, text) => {
-            const htmlLink = `<a href="${url}">${text}</a>`;
-            navigator.clipboard.write([
-                new ClipboardItem({
-                    "text/html": new Blob([htmlLink], { type: "text/html" }),
-                    "text/plain": new Blob([url], { type: "text/plain" }),
-                }),
-            ]);
-        },
-        args: [url, text], // Pass url and title as arguments
-    });
-
+    Clip(tab, `<a href="${url}">${text}</a>`, `${text}: ${url}`);
+    
+    // Show Hint
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: showHint,
@@ -267,7 +255,7 @@ async function getPageIdFromUrl(url) {
 
     if (metaTagMatch) {
         const pageId = metaTagMatch[1]; // Extract the value of the content attribute
-        console.log("Page ID extracted from HTML: " + pageId); // Alert the extracted page ID
+       // console.log("Page ID extracted from HTML: " + pageId); // Alert the extracted page ID
         return pageId; // Return the extracted page ID
     }
 } // eofun getPageIdFromUrl
@@ -377,7 +365,7 @@ export async function Query2Cql(searchStr, spacekey, type) {
             let tag = arrMatch[i];
             tag = tag.slice(1); // remove trailing #
             tag = tag.replace("&", "%26");
-            CQLLabels = CQLLabels + "+AND+label+=+" + tag;
+            CQLLabels = CQLLabels + ' AND label="' + tag + '"';
         } // end for tag array
         searchStr = searchStr.replace(patt, "");
     }
@@ -479,7 +467,7 @@ export async function Query2Cql(searchStr, spacekey, type) {
     // Add contributor filter - contributor does not support currentUser(). call getCurrentUser() function
     if (contributedByMe || notContributedByMe) {
         const username = await getCurrentUser();
-        console.log("currentUser:", username);
+       // console.log("currentUser:", username);
         if (username && username !== "anonymous") {
             if (contributedByMe) {
                 CQL = CQL + ` AND contributor="${username}"`;
@@ -639,7 +627,7 @@ export async function getSpaceKeyFromUrl(url) {
         let spaceKeyMatch = url.match(/[?&]spaceKey=([^&]+)/);
         if (spaceKeyMatch) {
             const spaceKey = spaceKeyMatch[1];
-            console.log("Space key extracted from URL parameter:", spaceKey);
+            //console.log("Space key extracted from URL parameter:", spaceKey);
             return spaceKey;
         }
 
@@ -647,7 +635,7 @@ export async function getSpaceKeyFromUrl(url) {
         spaceKeyMatch = url.match(/\/spaces\/([^\/]*)\/pages\//);
         if (spaceKeyMatch) {
             const spaceKey = spaceKeyMatch[1];
-            console.log("Space key extracted from URL parameter:", spaceKey);
+            //console.log("Space key extracted from URL parameter:", spaceKey);
             return spaceKey;
         }
 

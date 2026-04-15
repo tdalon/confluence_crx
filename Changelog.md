@@ -3,6 +3,8 @@
 - [Confluence CRX - Changelog](#confluence-crx---changelog)
   - [TODO](#todo)
   - [TODO 2026-01 (v3.0)](#todo-2026-01-v30)
+  - [2026-04-07 (v2.2.4)](#2026-04-07-v224)
+  - [2026-02-11 (v2.2.3)](#2026-02-11-v223)
   - [2026-01-17 (v2.2.2)](#2026-01-17-v222)
   - [2025-12-19 (v2.2.1)](#2025-12-19-v221)
   - [2025-12-05 (v2.2)](#2025-12-05-v22)
@@ -31,6 +33,13 @@
 *  Last Modifier
 *  Saved Searched  / Bookmarks e.g. Following Tags for new content not by me
 *  Tag Cloud navigator
+
+## 2026-04-07 (v2.2.4)
+* fix: Label with non-ASCII characters like - or ü. ->Error message: Could not parse cql : ... Log referral number is 47fab1e9-fe5d-40dd-8c60-34390a89fc5a. Label is not wrapped between quotes in the cql.
+* fix: label expansion if partial match and non-ASCII characters e.g. #künstliche matches like #k. Replace regexp by non-space match.
+
+## 2026-02-11 (v2.2.3)
+* fix: Copy Link in Breadcrumb format
 
 ## 2026-01-17 (v2.2.2)
 * fix: omnibox search does not use search type option; always advanced search
