@@ -1,4 +1,9 @@
 - [About](#about)
+  - [Chrome Installation](#chrome-installation)
+    - [Developer Mode](#developer-mode)
+  - [Edge installation](#edge-installation)
+  - [Firefox Installation](#firefox-installation)
+  - [Extension Overview](#extension-overview)
   - [How to support the developer](#how-to-support-the-developer)
   - [How to submit an issue](#how-to-submit-an-issue)
 - [Extension Button](#extension-button)
@@ -46,13 +51,35 @@ See [main blog post](https://tdalon.blogspot.com/2024/03/confluence-crx.html) an
 
 See [Changelog](Changelog.md) for history of changes.
 
+
+## Chrome Installation
+
 <p align="left">
 <a href="https://chrome.google.com/webstore/detail/confluence/dkofhaiegpbdikenaoljlbencjdbbpii">
   <img src="https://developer.chrome.com/static/docs/webstore/branding/image/206x58-chrome-web-bcb82d15b2486.png"> Chrome Web Store
   </a>
 </p>
 
-Extension Overview:
+### Developer Mode
+
+You can also install the extension from the Source.
+Clone the Git repository.
+Go to Extensions (chrome://extensions/)
+Activate Developer mode (top right corner)
+Load Unpacked and select repo source directory.
+
+See for example https://dev.to/ben/how-to-install-chrome-extensions-manually-from-github-1612
+
+## Edge installation
+
+Install from source like for Chrome Developer Mode.
+
+## Firefox Installation
+
+Add-On is available here: https://addons.mozilla.org/en-US/firefox/addon/confluence/
+
+
+## Extension Overview
 <p align="center">
 <a href="docs/assets/images/promo_1.png">
   <img src="docs/assets/images/promo_1.png">

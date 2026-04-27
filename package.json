@@ -1,0 +1,19 @@
+{
+  "name": "confluence-crx",
+  "version": "2.3",
+  "description": "Chrome Extension for Confluence",
+  "scripts": {
+    "build": "rollup -c",
+    "build-firefox": "npm run build && node build-firefox.js",
+    "restore-chrome": "node -e \"require('fs').copyFileSync('manifest.chrome.json', 'manifest.json'); console.log('✓ Restored Chrome manifest');\"",
+    "package-firefox": "npm run build && node build-firefox.js && node build-firefox-package.js",
+    "package-chrome": "npm run build && npm run restore-chrome && node build-chrome-package.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "archiver": "^6.0.1",
+    "rollup": "^4.9.0"
+  },
+  "author": "Thierry Dalon",
+  "license": "MIT"
+}

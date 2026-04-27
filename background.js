@@ -73,32 +73,58 @@ function quickInsertSnippet() {
 function tocToggle(tabId) {
     // Send message to content script to toggle TOC
     chrome.tabs.sendMessage(tabId, { action: "toggleToc" }, (response) => {
-        if (chrome.runtime.lastError) {
+        // In Firefox, lastError might not be set, but response will be undefined if no listener exists
+        if (chrome.runtime.lastError || response === undefined) {
             console.log("TOC content script not loaded, injecting...");
             // If content script not loaded, inject it first
-            chrome.scripting
-                .executeScript({
-                    target: { tabId: tabId },
-                    files: ["toc-content.js"],
-                })
-                .then(() => {
-                    chrome.scripting
-                        .insertCSS({
-                            target: { tabId: tabId },
-                            files: ["toc-overlay.css"],
-                        })
-                        .then(() => {
-                            // Try sending message again after injection
-                            setTimeout(() => {
-                                chrome.tabs.sendMessage(tabId, {
-                                    action: "toggleToc",
-                                });
-                            }, 100);
-                        });
-                })
-                .catch((error) => {
-                    console.error("Error injecting TOC scripts:", error);
-                });
+            // Use different API depending on Manifest version
+            if (chrome.scripting) {
+                // Manifest V3 API (Chrome)
+                chrome.scripting
+                    .executeScript({
+                        target: { tabId: tabId },
+                        files: ["toc-content.js"],
+                    })
+                    .then(() => {
+                        chrome.scripting
+                            .insertCSS({
+                                target: { tabId: tabId },
+                                files: ["toc-overlay.css"],
+                            })
+                            .then(() => {
+                                // After injection, send the toggle message again
+                                chrome.tabs.sendMessage(
+                                    tabId,
+                                    { action: "toggleToc" },
+                                    (response) => {
+                                        console.log("TOC toggled:", response);
+                                    }
+                                );
+                            });
+                    });
+            } else {
+                // Manifest V2 API (Firefox)
+                chrome.tabs.executeScript(
+                    tabId,
+                    { file: "toc-content.js" },
+                    () => {
+                        chrome.tabs.insertCSS(
+                            tabId,
+                            { file: "toc-overlay.css" },
+                            () => {
+                                // After injection, send the toggle message again
+                                chrome.tabs.sendMessage(
+                                    tabId,
+                                    { action: "toggleToc" },
+                                    (response) => {
+                                        console.log("TOC toggled:", response);
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
         }
     });
 }
@@ -235,8 +261,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     }
 });
 
-// Handle context menu clicks for snippets
+// Handle all context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    // Handle snippet menu items
     if (info.menuItemId.startsWith("snippet-")) {
         const snippetName = info.menuItemId.substring("snippet-".length);
 
@@ -301,7 +328,83 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         } catch (error) {
             console.error("Error retrieving snippet:", error);
         }
+        return;
     }
+
+    // Handle all other menu items
+    switch (info.menuItemId) {
+        case "crx_help":
+            CrxHelp();
+            return;
+        case "crx_rn":
+            CrxRn();
+            return;
+        case "crx_options":
+            chrome.windows.create({
+                url: chrome.runtime.getURL("options.html"),
+                type: 'popup',
+                width: 800,
+                height: 600
+            });
+            return;
+        case "crx_snippets":
+            chrome.tabs.create({
+                url: chrome.runtime.getURL("snippets.html"),
+            });
+            return;
+        case "crx_label_dict":
+            chrome.tabs.create({
+                url: chrome.runtime.getURL("label-dictionary.html"),
+            });
+            return;
+        case "snippet-selector":
+            quickInsertSnippet();
+            return;
+        case "toc_toggle":
+        case "toc_show_page":
+            tocToggle(tab.id);
+            return;
+        case "numheading_add":
+            chrome.tabs.query(
+                { active: true, currentWindow: true },
+                function (tabs) {
+                    chrome.scripting.executeScript({
+                        target: { tabId: tabs[0].id },
+                        files: ["numheading_add.js"],
+                    });
+                }
+            );
+            return;
+        case "numheading_remove":
+            chrome.tabs.query(
+                { active: true, currentWindow: true },
+                function (tabs) {
+                    chrome.scripting.executeScript({
+                        target: { tabId: tabs[0].id },
+                        files: ["numheading_remove.js"],
+                    });
+                }
+            );
+            return;
+        case "copy_link":
+            chrome.tabs.query(
+                { active: true, currentWindow: true },
+                async function (tabs) {
+                    await CopyLink(tabs[0]);
+                }
+            );
+            return;
+        case "copy_breadcrumb_link":
+            chrome.tabs.query(
+                { active: true, currentWindow: true },
+                async function (tabs) {
+                    await CopyLink(tabs[0], "breadcrumb");
+                }
+            );
+            return;
+        default:
+            return;
+    } // end switch
 });
 
 // Listen for changes to snippets and update context menus
@@ -369,7 +472,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Opening snippet manager");
         chrome.tabs.create({ url: chrome.runtime.getURL("snippets.html") });
         sendResponse({ success: true });
-       
     } else if (message.action === "getSnippets") {
         getSnippets()
             .then((snippets) => {
@@ -438,81 +540,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
     }
     return true;
-});
-
-// Add Context Menu listener
-chrome.contextMenus.onClicked.addListener(function (info, tab) {
-    switch (info.menuItemId) {
-        case "crx_help":
-            CrxHelp();
-            return;
-        case "crx_rn":
-            CrxRn();
-            return;
-        case "crx_options":
-            if (chrome.runtime.openOptionsPage) {
-                chrome.runtime.openOptionsPage();
-            } else {
-                window.open(chrome.runtime.getURL("options.html"));
-            }
-            return;
-        case "crx_snippets":
-            chrome.tabs.create({
-                url: chrome.runtime.getURL("snippets.html"),
-            });
-            return;
-        case "crx_label_dict":
-            chrome.tabs.create({
-                url: chrome.runtime.getURL("label-dictionary.html"),
-            });
-            return;
-        case "snippet-selector":
-            quickInsertSnippet();
-        case "toc_toggle":
-        case "toc_show_page":
-            tocToggle(tab.id);
-            return;
-        case "numheading_add":
-            chrome.tabs.query(
-                { active: true, currentWindow: true },
-                function (tabs) {
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabs[0].id },
-                        files: ["numheading_add.js"],
-                    });
-                }
-            );
-            return;
-        case "numheading_remove":
-            chrome.tabs.query(
-                { active: true, currentWindow: true },
-                function (tabs) {
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabs[0].id },
-                        files: ["numheading_remove.js"],
-                    });
-                }
-            );
-            return;
-        case "copy_link":
-            chrome.tabs.query(
-                { active: true, currentWindow: true },
-                async function (tabs) {
-                    await CopyLink(tabs[0]);
-                }
-            );
-            return;
-        case "copy_breadcrumb_link":
-            chrome.tabs.query(
-                { active: true, currentWindow: true },
-                async function (tabs) {
-                    await CopyLink(tabs[0], "breadcrumb");
-                }
-            );
-            return;
-        default:
-            return;
-    } // end switch
 });
 
 // #START

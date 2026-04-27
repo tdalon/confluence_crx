@@ -37,9 +37,9 @@ function addIndex() {
             indices[hIndex] = 0;
         }
         
-        if (heading.innerHTML.toLowerCase() !== "table of contents"){
+        if (heading.textContent.toLowerCase() !== "table of contents"){
             indices[hIndex]++;
-            heading.innerHTML = indices.join(".") + ". " + removeNo(heading.innerHTML);
+            heading.textContent = indices.join(".") + ". " + removeNo(heading.textContent);
         }
     });
 }

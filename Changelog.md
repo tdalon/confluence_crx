@@ -3,6 +3,7 @@
 - [Confluence CRX - Changelog](#confluence-crx---changelog)
   - [TODO](#todo)
   - [TODO 2026-01 (v3.0)](#todo-2026-01-v30)
+  - [2026-04 (v2.3)](#2026-04-v23)
   - [2026-04-07 (v2.2.4)](#2026-04-07-v224)
   - [2026-02-11 (v2.2.3)](#2026-02-11-v223)
   - [2026-01-17 (v2.2.2)](#2026-01-17-v222)
@@ -33,6 +34,43 @@
 *  Last Modifier
 *  Saved Searched  / Bookmarks e.g. Following Tags for new content not by me
 *  Tag Cloud navigator
+
+## 2026-04 (v2.3)
+
+### Firefox Compatibility
+
+* **Added full Firefox support** with Manifest V2 compatibility layer
+* **Build system**: Implemented Rollup bundler to convert ES modules for Firefox
+* **Dual manifest strategy**: 
+  - Chrome uses Manifest V3 with ES modules (no build required)
+  - Firefox uses Manifest V2 with bundled scripts
+* **Build commands**:
+  - `npm run build-firefox` - Build for Firefox
+  - `npm run restore-chrome` - Restore Chrome manifest
+
+### Firefox-Specific Fixes
+
+1. **ES Modules Bundling**: All JavaScript modules bundled into single files for Firefox compatibility
+2. **alert() Blocking**: Replaced `alert()` with HTML error messages in popup pages (Firefox blocks alert in popups)
+3. **Addon ID**: Added explicit `browser_specific_settings.gecko.id` for storage API compatibility
+4. **Context Menus**: Build script automatically patches "action" → "browser_action" for Manifest V2
+5. **Script Injection API**: Runtime detection to use:
+   - `chrome.scripting.executeScript()` for Chrome (Manifest V3)
+   - `chrome.tabs.executeScript()` for Firefox (Manifest V2)
+6. **Message Response Handling**: Check for both `chrome.runtime.lastError` and `undefined` response (Firefox doesn't set lastError when no listener exists)
+7. **Web Accessible Resources**: Added TOC files (`toc-content.js`, `toc-overlay.css`) to web_accessible_resources
+8. **Options Window Resize**: Changed options to open in popup window (800x600) instead of tab to prevent Firefox from resizing the main browser window
+
+### Code Quality Improvements
+
+* **Merged duplicate context menu listeners**: Combined two separate `chrome.contextMenus.onClicked.addListener` calls into one
+* **Fixed missing return statement**: Added return in `snippet-selector` case to prevent fall-through
+* **Smart backup system**: Build script only backs up Chrome manifest when current manifest is Manifest V3
+
+### Documentation
+
+* **README.md**: Added Firefox installation instructions with build steps
+* **BUILD.md**: Documented all 7 Firefox compatibility issues and solutions
 
 ## 2026-04-07 (v2.2.4)
 * fix: Label with non-ASCII characters like - or ü. ->Error message: Could not parse cql : ... Log referral number is 47fab1e9-fe5d-40dd-8c60-34390a89fc5a. Label is not wrapped between quotes in the cql.

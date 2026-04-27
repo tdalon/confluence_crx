@@ -184,7 +184,7 @@ if (typeof window.snippetSelectorLoaded === "undefined") {
         `;
 
         const closeButton = document.createElement("button");
-        closeButton.innerHTML = "&times;";
+        closeButton.textContent = "×";
         closeButton.style.cssText = `
         background: none;
         border: none;
@@ -298,11 +298,20 @@ if (typeof window.snippetSelectorLoaded === "undefined") {
         font-size: 12px;
         color: #6B778C;
         `;
-        footer.innerHTML = `
-        <span>↑↓: Navigate</span>
-        <span style="margin-left: 10px;">Enter: Insert snippet</span>
-        <span style="margin-left: 10px;">Esc: Cancel</span>
-        `;
+        
+        const span1 = document.createElement('span');
+        span1.textContent = '↑↓: Navigate';
+        footer.appendChild(span1);
+        
+        const span2 = document.createElement('span');
+        span2.style.marginLeft = '10px';
+        span2.textContent = 'Enter: Insert snippet';
+        footer.appendChild(span2);
+        
+        const span3 = document.createElement('span');
+        span3.style.marginLeft = '10px';
+        span3.textContent = 'Esc: Cancel';
+        footer.appendChild(span3);
 
         // Assemble the components
         selectorContainer.appendChild(header);
@@ -386,7 +395,7 @@ if (typeof window.snippetSelectorLoaded === "undefined") {
         if (!snippetList) return;
 
         // Clear the list
-        snippetList.innerHTML = "";
+        snippetList.textContent = "";
 
         if (filteredSnippets.length === 0) {
             const emptyItem = document.createElement("li");

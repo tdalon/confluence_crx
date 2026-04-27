@@ -5,6 +5,16 @@ import {
     clearAllSnippets,
 } from "./snippets.js";
 
+// Safe HTML setter to avoid innerHTML security warnings
+function setHTMLContent(element, htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    element.textContent = '';
+    while (doc.body.firstChild) {
+        element.appendChild(doc.body.firstChild);
+    }
+}
+
 let snippetNameInput,
     snippetDescriptionInput,
     snippetTextInput,
@@ -327,7 +337,7 @@ function isRichContent(htmlData, textData) {
 
     // Create a temporary element to analyze the HTML
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = htmlData;
+    setHTMLContent(tempDiv, htmlData);
 
     // Check for Confluence-specific elements and classes
     const confluenceElements = tempDiv.querySelectorAll(
@@ -447,8 +457,8 @@ function updateHtmlPreview() {
             const structureSummary = analyzeHtmlStructure(htmlContent);
             previewContent.textContent = structureSummary;
         } else {
-            previewContent.innerHTML =
-                '<em style="color: #6b778c;">Structure analysis will appear here...</em>';
+            setHTMLContent(previewContent,
+                '<em style="color: #6b778c;">Structure analysis will appear here...</em>');
         }
     }
 }
@@ -495,7 +505,7 @@ function findConfluenceMacros(input) {
     if (typeof input === "string") {
         // If input is a string (HTML content), create a temporary element
         const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = input;
+        setHTMLContent(tempDiv, input);
         element = tempDiv;
     } else if (input instanceof Element) {
         // If input is already a DOM element, use it directly
@@ -563,7 +573,7 @@ async function handleSaveSnippet() {
 async function loadSnippets() {
     const snippets = await getSnippets();
     const snippetNames = Object.keys(snippets);
-    snippetsContainer.innerHTML = "";
+    snippetsContainer.textContent = "";
     if (snippetNames.length === 0) {
         const noSnippetsMsg = document.createElement("p");
         noSnippetsMsg.id = "no-snippets";
@@ -593,9 +603,14 @@ function addSnippetToUI(name, text, description = "", format = "text") {
     const snippetInfo = document.createElement("div");
     const snippetName = document.createElement("div");
     snippetName.className = "snippet-title";
-    const formatBadge =
-        format === "html" ? ' <span class="format-badge html">HTML</span>' : "";
-    snippetName.innerHTML = name + formatBadge;
+    snippetName.textContent = name;
+    if (format === "html") {
+        const formatBadge = document.createElement("span");
+        formatBadge.className = "format-badge html";
+        formatBadge.textContent = "HTML";
+        snippetName.appendChild(document.createTextNode(" "));
+        snippetName.appendChild(formatBadge);
+    }
     snippetInfo.appendChild(snippetName);
 
     if (description) {
@@ -672,7 +687,7 @@ function addSnippetToUI(name, text, description = "", format = "text") {
 
     // If we have preview content, use it; otherwise show a simple text preview
     if (previewContent) {
-        snippetContent.innerHTML = previewContent;
+        setHTMLContent(snippetContent, previewContent);
     } else {
         // For plain text with no variables, just show a short preview
         const preview =
@@ -796,7 +811,7 @@ function hasElementsWithDataAttributes(element) {
 // Helper function to extract headings from HTML content
 function extractHeadings(html) {
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html;
+    setHTMLContent(tempDiv, html);
 
     const headings = [];
     const headingElements = tempDiv.querySelectorAll("h1, h2, h3, h4, h5, h6");

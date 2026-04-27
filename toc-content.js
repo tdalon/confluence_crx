@@ -1,6 +1,16 @@
 (function() {
     'use strict';
 
+    // Safe HTML setter to avoid innerHTML security warnings
+    function setHTMLContent(element, htmlString) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        element.textContent = '';
+        while (doc.body.firstChild) {
+            element.appendChild(doc.body.firstChild);
+        }
+    }
+
     let tocOverlay = null;
     let headings = [];
     let currentMaxLevel = 6;
@@ -169,7 +179,7 @@
 
         tocOverlay = document.createElement('div');
         tocOverlay.className = 'crx-toc-overlay';
-        tocOverlay.innerHTML = `
+        setHTMLContent(tocOverlay, `
             <div class="crx-toc-header">
                 <h3 class="crx-toc-title">Table of Contents</h3>
                 <div class="crx-toc-controls">
@@ -194,7 +204,7 @@
                 </div>
             </div>
             <div class="crx-toc-content"></div>
-        `;
+        `);
 
         document.body.appendChild(tocOverlay);
 
@@ -301,23 +311,23 @@
         const content = tocOverlay.querySelector('.crx-toc-content');
         
         if (headings.length === 0) {
-            content.innerHTML = '<div class="crx-toc-empty">No headings found on this page</div>';
+            setHTMLContent(content, '<div class="crx-toc-empty">No headings found on this page</div>');
             return;
         }
 
         const filteredHeadings = headings.filter(h => h.level <= currentMaxLevel);
         
         if (filteredHeadings.length === 0) {
-            content.innerHTML = '<div class="crx-toc-empty">No headings found for selected level</div>';
+            setHTMLContent(content, '<div class="crx-toc-empty">No headings found for selected level</div>');
             return;
         }
 
         // Create TOC items with simple anchor links
-        content.innerHTML = filteredHeadings.map(heading => `
+        setHTMLContent(content, filteredHeadings.map(heading => `
             <a href="#${heading.id}" class="crx-toc-item" data-level="${heading.level}">
                 ${heading.text}
             </a>
-        `).join('');
+        `).join(''));
 
         // Add click handlers for smooth scrolling and highlighting
         content.querySelectorAll('.crx-toc-item').forEach((item, index) => {

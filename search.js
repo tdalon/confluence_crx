@@ -1,6 +1,16 @@
 
 import {Query2Cql, getSpaceKeyFromUrl, getSearchUrl, getSpaceKey, getObjectFromLocalStorage, getLastAccessedSpaceKey} from './shared.js';
 
+// Safe HTML setter to avoid innerHTML security warnings
+function setHTMLContent(element, htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    element.textContent = '';
+    while (doc.body.firstChild) {
+        element.appendChild(doc.body.firstChild);
+    }
+}
+
 let g_SearchResponse; // global variable
 
 // Store the state of Ctrl and Shift keys for advanced Search switch
@@ -84,8 +94,34 @@ document.addEventListener('DOMContentLoaded', async function () {
     chrome.storage.sync.get('rooturl', (data) => {
         const rooturl = data.rooturl;
         if (typeof rooturl ==='undefined' || rooturl === '') {
-            alert('Set Confluence rooturl in the Options!');
-            window.open(chrome.runtime.getURL('options.html'));
+            // Show error message instead of alert (Firefox blocks alert in popups)
+            const errorDiv = document.createElement('div');
+            errorDiv.style.cssText = 'background:#ffebee;border:2px solid#c62828;padding:15px;margin:10px;border-radius:5px';
+            
+            const strong = document.createElement('strong');
+            strong.style.color = '#c62828';
+            strong.textContent = '⚠️ Configuration Required';
+            errorDiv.appendChild(strong);
+            
+            errorDiv.appendChild(document.createElement('br'));
+            errorDiv.appendChild(document.createTextNode('Please set Confluence root URL in Options.'));
+            errorDiv.appendChild(document.createElement('br'));
+            
+            const openOptionsBtn = document.createElement('button');
+            openOptionsBtn.id = 'openOptionsBtn';
+            openOptionsBtn.style.cssText = 'margin-top:10px;padding:5px 10px;cursor:pointer';
+            openOptionsBtn.textContent = 'Open Options';
+            errorDiv.appendChild(openOptionsBtn);
+            
+            document.body.insertBefore(errorDiv, document.body.firstChild);
+            document.getElementById('openOptionsBtn').addEventListener('click', () => {
+                chrome.windows.create({
+                    url: chrome.runtime.getURL('options.html'),
+                    type: 'popup',
+                    width: 800,
+                    height: 600
+                });
+            });
             return;
         }
 
@@ -181,7 +217,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         } else {
             spacekeyInput.classList.add('inactive');
             spaceStatus.style.display = 'inline-block';
-            spaceStatus.innerHTML = statusText;
+            spaceStatus.textContent = statusText;
         }
     }
     
@@ -329,11 +365,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
 
     document.getElementById('go-to-options').addEventListener('click', function() {
-        if (chrome.runtime.openOptionsPage) {
-          chrome.runtime.openOptionsPage();
-        } else {
-          window.open(chrome.runtime.getURL('options.html'));
-        }
+        chrome.windows.create({
+            url: chrome.runtime.getURL('options.html'),
+            type: 'popup',
+            width: 800,
+            height: 600
+        });
     });
 
     document.getElementById('popout').addEventListener('click', function() {
@@ -416,7 +453,7 @@ async function showResults(u) {
     console.log('Fetching results from: '+ u);
     const resultsElt = document.getElementById('results');
     // clear previous results
-    resultsElt.innerHTML = '';
+    resultsElt.textContent = '';
     
     // Use fetch 
     const response = await fetch(u);
@@ -427,13 +464,13 @@ async function showResults(u) {
         const statusText = response.status === 401 ? "Unauthorized" : "Forbidden";
         
         // Create a more informative error message in the results area
-        resultsElt.innerHTML = `
+        setHTMLContent(resultsElt, `
             <div class="error-container">
                 <h3>Authentication Error (${response.status} ${statusText})</h3>
                 <p>You need to be logged in to Confluence to perform this search.</p>
                 <p>Please <a href="${rootUrl}" target="_blank">log in to Confluence</a> and try again.</p>
             </div>
-        `;
+        `);
         
         // Update the results message
         document.getElementById('results_msg').textContent = `Authentication error: ${statusText}`;
@@ -450,7 +487,7 @@ async function showResults(u) {
     if (response.status >= 400) {
         let errorMsg = `${g_SearchResponse.message || response.statusText}`;
 
-        resultsElt.innerHTML = `
+        setHTMLContent(resultsElt, `
             <div class="error-container">
                 <h3>Server Error (${response.status})</h3>
                 <p>The Confluence server returned an error.</p>
@@ -460,7 +497,7 @@ async function showResults(u) {
                         : '<p class="error-details">Check if the space keys used exist.</p>'
                 }
             </div>
-        `;
+        `);
         
         document.getElementById('results_msg').textContent = `Server error: ${response.status}`;
         document.getElementById('results_next').style.display = "none";
@@ -484,13 +521,13 @@ async function showResults(u) {
             if (!rootUrl.includes('.atlassian.net')) { // Cloud
                loginUrl = rootUrl + '/login.action';
             }
-            resultsElt.innerHTML = `
+            setHTMLContent(resultsElt, `
                 <div class="error-container">
                     <h3>Login Required</h3>
                     <p>You need to be logged in to Confluence to perform this search.</p>
                     <p>Please <a href="${loginUrl}" target="_blank">log in to Confluence</a> and try again.</p>
                 </div>
-            `;
+            `);
         
             //document.getElementById('results_msg').textContent = 'Login required';
             
@@ -548,14 +585,20 @@ async function showResults(u) {
         li.classList.add('result-item');
 
         const result_title = document.createElement('h3');
+        const resultLink = document.createElement('a');
+        resultLink.href = rootUrl + result._links.webui;
+        resultLink.textContent = result.title;
+        result_title.appendChild(resultLink);
+        
         if (ismultispace) {
             const spaceKey = await getSpaceKeyFromUrl(rootUrl + result._links.webui);
-            if (spaceKey=== null) {
+            if (spaceKey === null) {
                 console.warn('Failed to get space key from URL:', rootUrl + result._links.webui);
             }
-            result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a><span class="space-key">' + spaceKey + '</span>';
-        } else {
-            result_title.innerHTML = '<a href="' + rootUrl + result._links.webui + '">' + result.title + '</a>';
+            const spaceKeySpan = document.createElement('span');
+            spaceKeySpan.className = 'space-key';
+            spaceKeySpan.textContent = spaceKey;
+            result_title.appendChild(spaceKeySpan);
         }
 
         result_title.classList.add('result-title');

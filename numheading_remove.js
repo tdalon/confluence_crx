@@ -28,7 +28,7 @@ function removeIndex() {
 
     // Process the headings to remove numbering
     headings.forEach(function(heading) {            
-        heading.innerHTML = removeNo(heading.innerHTML);
+        heading.textContent = removeNo(heading.textContent);
     });
 }
 

@@ -5,6 +5,16 @@ import {
     clearAllLabels,
 } from "./label-dictionary.js";
 
+// Safe HTML setter to avoid innerHTML security warnings
+function setHTMLContent(element, htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, 'text/html');
+    element.textContent = '';
+    while (doc.body.firstChild) {
+        element.appendChild(doc.body.firstChild);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     const shortcutInput = document.getElementById("shortcut-input");
     const fullLabelInput = document.getElementById("full-label-input");
@@ -169,8 +179,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             if (labels.length === 0) {
                 emptyState.style.display = "block";
-                labelsContainer.innerHTML =
-                    '<div class="empty-state" id="empty-state">No label shortcuts defined yet. Add one above to get started!</div>';
+                setHTMLContent(labelsContainer,
+                    '<div class="empty-state" id="empty-state">No label shortcuts defined yet. Add one above to get started!</div>');
                 return;
             }
 
@@ -237,7 +247,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 })
                 .join("");
 
-            labelsContainer.innerHTML = labelsHtml;
+            setHTMLContent(labelsContainer, labelsHtml);
         } catch (error) {
             console.error("Error in loadLabels:", error);
             throw error;

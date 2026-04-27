@@ -1,37 +1,40 @@
 {
     "name": "Confluence",
-    "description": "Chrome Extension for Confluence",
+    "description": "Browser Extension for Confluence",
     "short_name": "confluence",
     "author": "Thierry Dalon",
-    "host_permissions": ["https://*.atlassian.net/wiki/"],
-    "optional_host_permissions": ["https://*/*"],
-    "version": "2.3",
-    "manifest_version": 3,
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "confluence-crx@tdalon.github.io",
+            "data_collection_permissions": {
+                "builtin_data": false,
+                "required": ["none"]
+            }
+        }
+    },
     "permissions": [
+        "https://*.atlassian.net/wiki/",
+        "<all_urls>",
         "storage",
         "contextMenus",
-        "scripting",
         "activeTab",
         "notifications",
         "clipboardWrite"
     ],
+    "version": "2.3",
+    "manifest_version": 2,
     "background": {
-        "service_worker": "background.js",
-        "type": "module"
+        "scripts": ["dist/background.bundle.js"],
+        "persistent": false
     },
-    "action": {
+    "browser_action": {
         "default_icon": {
             "128": "images/icon-128.png",
             "16": "images/icon-16.png",
             "32": "images/icon-32.png",
             "48": "images/icon-48.png"
         },
-        "default_popup": "search.html#popup"
-    },
-    "options_page": "options.html",
-    "options_ui": {
-        "page": "options.html",
-        "open_in_tab": true
+        "default_popup": "dist/search.html#popup"
     },
     "commands": {
         "open_search": {
@@ -69,7 +72,7 @@
         "48": "images/icon-48.png"
     },
     "omnibox": {
-        "keyword": "c"
+        "keyword": "cf"
     },
     "content_scripts": [
         {
@@ -79,9 +82,11 @@
         }
     ],
     "web_accessible_resources": [
-        {
-            "resources": ["snippet-injector.js"],
-            "matches": ["<all_urls>"]
-        }
+        "snippet-injector.js",
+        "dist/search.bundle.js",
+        "dist/snippets-ui.bundle.js",
+        "dist/label-dictionary-ui.bundle.js",
+        "toc-content.js",
+        "toc-overlay.css"
     ]
 }
